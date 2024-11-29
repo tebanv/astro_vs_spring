@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -161,6 +162,12 @@ public class ApiRest {
     // Procesar el archivo JSON
     private ValidationRules processJsonFile(MultipartFile brFile) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
+        // Leer el contenido del archivo JSON como una cadena
+        String jsonContent = new String(brFile.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+
+        // Imprimir el contenido del JSON en la consola
+        System.out.println("Contenido del JSON recibido:");
+        System.out.println(jsonContent);
         return objectMapper.readValue(brFile.getInputStream(), ValidationRules.class);
     }
 

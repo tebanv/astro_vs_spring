@@ -9,9 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class ValidationRules {
+public class Dictionary {
 
-    private Rules rules;
-    private Report report;
-    private Metadata metadata;
+    private String columnName;
+    private String dictionaryName;
 }

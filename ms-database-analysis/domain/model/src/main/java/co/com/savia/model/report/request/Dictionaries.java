@@ -11,9 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class RangeWithWordRule {
-    private List<RangeWithword> ranges;
-    private String rangeColumn;  // Nombre de la columna con el valor numérico
-    private String typeColumn;   // Nombre de la columna que debe contener el tipo esperado
-
+public class Dictionaries {
+    private List<Dictionary> dictionaries;
 }

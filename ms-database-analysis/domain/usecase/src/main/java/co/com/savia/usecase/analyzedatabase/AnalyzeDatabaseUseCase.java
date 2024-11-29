@@ -24,11 +24,12 @@ public class AnalyzeDatabaseUseCase {
 
     public ReportResponse analyzeDatabaseWithRules(List<Map<String, String>> records, ValidationRules rules,
                                                    String fileName) {
-
         try {
             log.info("Se pasa a validar cada registro...");
-            String errorFilePath = validateRecords(records, rules, fileName);
+            List<String[]> errorRows = validateRecords(records, rules, fileName);
             log.info("Registros validados...");
+            // Generar el archivo de errores
+            String errorFilePath = generateErrorFileExcel(errorRows, fileName);
 
             if (errorFilePath != null && !errorFilePath.isEmpty()) {
                 File errorFile = new File(errorFilePath);
@@ -65,7 +66,7 @@ public class AnalyzeDatabaseUseCase {
     }
 
     // Validar Bases de datos
-    private String validateRecords(List<Map<String, String>> records, ValidationRules rules, String fileName) {
+    private List<String[]> validateRecords(List<Map<String, String>> records, ValidationRules rules, String fileName) {
 
         List<String[]> errorRows = new ArrayList<>();
         List<String> reportHeaders = rules.getReport().getHeaders();
@@ -118,7 +119,7 @@ public class AnalyzeDatabaseUseCase {
             // Validar duplicaciones
             Util.validateDuplications(record, records, rules.getRules().getCategories().getDuplicationRules(), duplicationErrors);
             // Validar dictionary Validation
-            Util.validateDictionaryEntries(record, rules.getRules().getCategories().getDictionaryValidationRules(), dictionary, dictionaryValidationErrors);
+            //Util.validateDictionaryEntries(record, rules.getRules().getCategories().getDictionaryValidationRules(), dictionary, dictionaryValidationErrors);
             // Validar comparaciones entre campos
             Util.validateComparisonsBetweenColumns(record, rules.getRules().getCategories().getComparisonsWithOtherColumnRules(), comparisonBetweenColumnsErrors);
             // Validar comparaciones de fechas
@@ -155,8 +156,8 @@ public class AnalyzeDatabaseUseCase {
             // Añadir la fila con errores a la lista de errores
             errorRows.add(errorRow);
         }
-        // Generar el archivo de errores
-        return generateErrorFileExcel(errorRows, fileName);
+
+        return errorRows;
     }
 
     // Generar archivo en xlsx
@@ -167,7 +168,7 @@ public class AnalyzeDatabaseUseCase {
                 .concat(Objects.requireNonNull(environment.getProperty("general.file-type-report-generated")));
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet(environment.getProperty("general.sheet-name"));
-
+            log.info("Llego hasta aca..");
             // Recorrer las filas de errores y escribirlas en el archivo Excel
             int rowNum = 0;
             for (String[] row : errorRows) {

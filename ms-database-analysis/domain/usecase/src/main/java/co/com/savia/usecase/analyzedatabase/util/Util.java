@@ -184,8 +184,6 @@ public class Util {
 
     // 6,1 Transformación númerica (área de polígono)
 
-
-    // 6,2 Transformación númerica (Tipologia de altura)
     public static void validateRangeWithWord(Map<String, String> record, List<RangeWithWordRule> rangeRules,
                                              List<String> errors) {
         List<String> rangeTypeValidationErrors = new ArrayList<>();
@@ -198,20 +196,33 @@ public class Util {
                 try {
                     double rangeValue = Double.parseDouble(rangeValueStr);
 
-                    // Validar si el valor está dentro del rango especificado en la regla
-                    if (rangeValue >= rule.getMin() && rangeValue <= rule.getMax()) {
-                        // Verificar que el valor de la columna de tipo coincida con el tipo esperado
-                        if (typeValue == null || !typeValue.equals(rule.getExpectedType())) {
-                            rangeTypeValidationErrors.add(EL_CAMPO + rule.getTypeColumn() +
-                                    " debe ser '" + rule.getExpectedType() + "' cuando " +
-                                    rule.getRangeColumn() + " está en el rango [" + rule.getMin() +
-                                    ", " + rule.getMax() + "]");
+                    boolean isInRange = false;
+                    for (RangeWithword range : rule.getRanges()) {
+                        // Validar si el valor está dentro del rango especificado
+                        if (rangeValue >= range.getMin() && rangeValue <= range.getMax()) {
+                            isInRange = true;
+
+                            // Verificar que el valor de la columna de tipo coincida con el tipo esperado
+                            if (typeValue == null || !typeValue.equals(range.getType())) {
+                                rangeTypeValidationErrors.add(EL_CAMPO + rule.getTypeColumn() +
+                                        " debe ser '" + range.getType() + "' cuando " +
+                                        rule.getRangeColumn() + " está en el rango [" + range.getMin() +
+                                        ", " + range.getMax() + "]");
+                            }
                         }
                     }
+
+                    // Si el valor no está dentro de ningún rango, registrar el error
+                    if (!isInRange) {
+                        rangeTypeValidationErrors.add(EL_CAMPO + rule.getRangeColumn() +
+                                " con valor '" + rangeValue + "' no pertenece a ningún rango válido.");
+                    }
+
                 } catch (NumberFormatException e) {
-                    log.error("Error en validateRangeWithType: {}, en ID: {}, record: {}",
+                    log.error("Error en validateRangeWithWord: {}, en ID: {}, record: {}",
                             e.getMessage(), record.get("id"), record);
-                    rangeTypeValidationErrors.add(EL_CAMPO + rule.getRangeColumn() + " debe ser numérico para aplicar la validación de rango");
+                    rangeTypeValidationErrors.add(EL_CAMPO + rule.getRangeColumn() +
+                            " debe ser numérico para aplicar la validación de rango.");
                 }
             }
         }
@@ -221,6 +232,7 @@ public class Util {
             errors.add(String.join(DELIMITER, rangeTypeValidationErrors));
         }
     }
+
 
     // 7 Comparación con otra columana
     public static void validateComparisonsBetweenColumns(Map<String, String> record, List<ComparisonWithOtherColumnRule> comparisonRules, List<String> errors) {
