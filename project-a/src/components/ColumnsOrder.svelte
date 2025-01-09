@@ -108,7 +108,7 @@
       {#if canAddColumn}
         <button
           on:click={addColumn}
-          class="bg-blue-500 text-white p-1 rounded-md hover:bg-blue-600 transition-colors mt-2"
+          class="bg-green-500 text-white p-1 rounded-md hover:bg-green-600 transition-colors mt-2"
           aria-label="Agregar columna"
         >
           <Plus size={20} />
