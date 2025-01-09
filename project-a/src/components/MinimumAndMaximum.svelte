@@ -84,8 +84,8 @@
     </div>
 
     {#if isExpanded}
-        <div class="flex flex-col gap-4 mb-4 mt-4">
-            <div class="flex flex-wrap gap-4">
+        <div class="flex flex-wrap items-center gap-4 mb-4 mt-4">
+            
                 <select
                     bind:value={selectedHeader}
                     class="bg-zinc-600 text-white p-2 rounded-md flex-grow"
@@ -112,15 +112,16 @@
                     placeholder="Valor Máximo"
                     aria-label="Ingresar valor máximo"
                 />
-            </div>
-
-            <button
+                <button
                 on:click={addMinMaxRule}
-                class="bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition-colors w-full"
+                class="bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition-colors flex-shrink-0"
                 disabled={!selectedHeader || (minValue === null && maxValue === null)}
-            >
+                >
                 Agregar
-            </button>
+                </button>
+            
+
+
         </div>
 
         <div class="space-y-2">
