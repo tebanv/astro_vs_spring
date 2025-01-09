@@ -13,6 +13,7 @@
   import Dictionaries from './Dictionaries.svelte';
   
   import DuplicationRules from './DuplicationRules.svelte';
+  import CompareDatesCard from './CompareDatesCard.svelte';
 
   // import NotNullRulesTest from './NotNullRulesTest.svelte';
 
@@ -27,6 +28,7 @@
     <ColumnsOrder />
     <RangeWithWord />
     <DateRangeRules />
+    <CompareDatesCard />
     <SizeRules />
     <MinimumAndMaximum />
     <SpecificValuesRules />
