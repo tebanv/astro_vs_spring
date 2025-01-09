@@ -1,70 +1,70 @@
 <script>
-    import { rulesStore } from '../stores/rulesStores.js';
-    import { ChevronDown, ChevronUp, X } from 'lucide-svelte';
-  
-    let selectedDate1 = '';
-    let selectedDate2 = '';
-    let selectedOperator = '';
-    let isExpanded = false;
-  
-    $: comparisons = $rulesStore.rules.categories?.comparisonsWithDateRules || [];
-  
-    const addComparison = () => {
-      if (selectedDate1 && selectedDate2 && selectedOperator) {
-        rulesStore.update(store => ({
-          ...store,
-          rules: {
-            ...store.rules,
-            categories: {
-              ...store.rules.categories,
-              comparisonsWithDateRules: [
-                ...(store.rules.categories?.comparisonsWithDateRules || []),
-                { date1: selectedDate1, date2: selectedDate2, operator: selectedOperator }
-              ]
-            }
-          }
-        }));
-        selectedDate1 = '';
-        selectedDate2 = '';
-        selectedOperator = '';
-      }
-    };
-  
-    const removeComparison = (index) => {
+  import { rulesStore } from '../stores/rulesStores.js';
+  import { ChevronDown, ChevronUp, X } from 'lucide-svelte';
+
+  let comparetorOne = '';
+  let comparetorTwo = '';
+  let selectedOperator = '';
+  let isExpanded = false;
+
+  $: comparisons = $rulesStore.rules.categories?.comparisonsWithDateRules || [];
+
+  const addComparison = () => {
+    if (comparetorOne && comparetorTwo && selectedOperator) {
       rulesStore.update(store => ({
         ...store,
         rules: {
           ...store.rules,
           categories: {
             ...store.rules.categories,
-            comparisonsWithDateRules: store.rules.categories?.comparisonsWithDateRules.filter((_, i) => i !== index)
+            comparisonsWithDateRules: [
+              ...(store.rules.categories?.comparisonsWithDateRules || []),
+              { comparetorOne, comparetorTwo, operator: selectedOperator }
+            ]
           }
         }
       }));
-    };
+      comparetorOne = '';
+      comparetorTwo = '';
+      selectedOperator = '';
+    }
+  };
+
+  const removeComparison = (index) => {
+    rulesStore.update(store => ({
+      ...store,
+      rules: {
+        ...store.rules,
+        categories: {
+          ...store.rules.categories,
+          comparisonsWithDateRules: store.rules.categories?.comparisonsWithDateRules.filter((_, i) => i !== index)
+        }
+      }
+    }));
+  };
+
+  const toggleExpand = () => {
+    isExpanded = !isExpanded;
+  };
+</script>
+
+<div class="custom-green-div p-4 rounded-lg">
+  <div class="flex items-center justify-between">
+    <h2 class="text-lg font-bold text-black">Comparar Fechas</h2>
+    <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">
+      {#if isExpanded}
+        <ChevronUp />
+      {:else}
+        <ChevronDown />
+      {/if}
+    </button>
+  </div>
   
-    const toggleExpand = () => {
-      isExpanded = !isExpanded;
-    };
-  </script>
-  
-  <div class="custom-green-div p-4 rounded-lg">
-    <div class="flex items-center justify-between">
-      <h2 class="text-lg font-bold text-black">Comparar Fechas</h2>
-      <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">
-        {#if isExpanded}
-          <ChevronUp />
-        {:else}
-          <ChevronDown />
-        {/if}
-      </button>
-    </div>
-    
-    {#if isExpanded}
+  {#if isExpanded}
     <div class="flex flex-wrap items-center gap-4 mb-4 mt-4">
       <input
         type="date"
-        bind:value={selectedDate1}
+        bind:value={comparetorOne}
         class="bg-zinc-600 text-white p-1 rounded-md text-sm flex-grow"
         aria-label="Seleccionar primera fecha"
       />
@@ -82,15 +82,15 @@
   
       <input
         type="date"
-        bind:value={selectedDate2}
+        bind:value={comparetorTwo}
         class="bg-zinc-600 text-white p-1 rounded-md text-sm flex-grow"
         aria-label="Seleccionar segunda fecha"
       />
-  
+
       <button
         on:click={addComparison}
         class="bg-green-500 text-white px-2 py-1 rounded-md hover:bg-green-600 transition-colors text-sm flex-shrink-0"
-        disabled={!selectedDate1 || !selectedDate2 || !selectedOperator}
+        disabled={!comparetorOne || !comparetorTwo || !selectedOperator}
       >
         Añadir
       </button>
@@ -99,11 +99,11 @@
     <div class="space-y-2">
       {#each comparisons as comparison, index (index)}
         <div class="flex items-center justify-between bg-zinc-600/50 p-2 rounded-md">
-          <span class="text-white">{comparison.date1} {comparison.operator} {comparison.date2}</span>
+          <span class="text-white">{comparison.comparetorOne} {comparison.operator} {comparison.comparetorTwo}</span>
           <button
             on:click={() => removeComparison(index)}
             class="text-red-400 hover:text-red-600 transition-colors"
-            aria-label={`Eliminar comparación ${comparison.date1} ${comparison.operator} ${comparison.date2}`}
+            aria-label={`Eliminar comparación ${comparison.comparetorOne} ${comparison.operator} ${comparison.comparetorTwo}`}
           >
             <X size={20} />
           </button>
@@ -111,4 +111,4 @@
       {/each}
     </div>
   {/if}
-  </div>
+</div>

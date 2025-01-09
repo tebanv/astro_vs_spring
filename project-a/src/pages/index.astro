@@ -46,17 +46,17 @@ const { currentPath } = Astro.props; // Obtener currentPath de los props
     <div class="backdrop-blur-sm overflow-y-auto flex-grow">
       <CategoriesContainer client:load />
     </div>
+
+    <div>
+      <ReportHeaders client:load />
+    </div>
   
     <!-- Botón para guardar y cargar estado de la app -->
     
     <div>
       <SaveLoadState client:load />
     </div>
-        
-    <div>
-      <ReportHeaders client:load />
-    </div>
-    
+            
     <div>
       <AnalyzeButton client:load />
     </div>

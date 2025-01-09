@@ -104,6 +104,17 @@ export function transformJsonFromBackend(state) {
         }));
     }
 
+    // Transform comparisonsWithDateRules 
+    if (transformedState.rules.categories?.comparisonsWithDateRules) {
+        transformedState.rules.categories.comparisonsWithDateRules = transformedState.rules.categories.comparisonsWithDateRules.map(rule => ({
+            comparetorOne: rule.comparetorOne,
+            comparetorTwo: rule.comparetorTwo,
+            operator: rule.operator
+        }));
+    } else {
+        transformedState.rules.categories.comparisonsWithDateRules = [];
+    }
+
     // Transform Dictionaries
     if (transformedState.rules?.dictionaries) {
         // Ensure names is an array
@@ -140,8 +151,6 @@ export function transformJsonForAnalysis(state) {
     // Start with the backend transformation
     let transformedState = transformJsonForBackend(state);
     
-    // Add any additional transformations needed for analysis
-    // For example, you might want to add metadata or adjust formats
     
     transformedState.metadata = {
         timestamp: new Date().toISOString(),
