@@ -18,7 +18,7 @@
   let pollingInterval = null;
 
   $: rules = $rulesStore;
-  $: excelFile = $excelFileStore;
+  $: ({ file: excelFile } = $excelFileStore);
 
   async function handleAnalyze() {
     if (!excelFile) {

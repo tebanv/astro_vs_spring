@@ -2,10 +2,21 @@
     import { rulesStore } from '../stores/rulesStores.js';
     import { ArrowDownToLine, ArrowUpFromLine } from 'lucide-svelte';
     import { transformJsonForBackend, transformJsonFromBackend } from '../utils/jsonTransformations.js';
+    import { excelFileStore } from '../stores/excelFileStore.js';
 
     let fileInput;
     let errorMessage = '';
     let successMessage = '';
+    let excelFileName;
+
+    excelFileStore.subscribe(value => {
+    excelFileName = value.fileName;
+    });
+
+    function processFileName(fileName) {
+        // Reemplazar espacios con guiones bajos y eliminar la extensión
+        return fileName.replace(/\s+/g, '_').split('.').slice(0, -1).join('_');
+    }
 
     function saveState() {
         const state = transformJsonForBackend($rulesStore);
@@ -13,7 +24,9 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'rules_state.json';
+
+        const baseFileName = excelFileName ? processFileName(excelFileName) : ' ';        
+        a.download = `Reglas_${baseFileName}`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

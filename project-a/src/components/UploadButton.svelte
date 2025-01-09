@@ -25,7 +25,7 @@
 
       // Si no hay duplicados, actualizar los stores
       headersStore.set(headers);
-      excelFileStore.set(file);  // Guardamos el archivo en el nuevo store
+      excelFileStore.set({ file: file, fileName: file.name });  // Guardamos el archivo en el nuevo store
       console.log(headers);
     };
 
