@@ -105,7 +105,7 @@
   
     {#if isExpanded}
         <div class="mb-4">
-            <label for="range-column-select" class="block text-white mb-2">Columna de Rango:</label>
+            <label for="range-column-select" class="block text-black mb-2">Columna de Rango:</label>
             <select
                 id="range-column-select"
                 bind:value={selectedRangeColumn}
@@ -119,7 +119,7 @@
         </div>
   
         <div class="mb-4">
-            <label for="type-column-select" class="block text-white mb-2">Columna Tipo:</label>
+            <label for="type-column-select" class="block text-black mb-2">Columna Tipo:</label>
             <select
                 id="type-column-select"
                 bind:value={selectedTypeColumn}
@@ -134,7 +134,7 @@
   
         <div class="flex flex-wrap gap-2 mb-4">
             <div class="flex-1 min-w-[120px]">
-                <label for="min-integer" class="block text-white mb-1">Mínimo:</label>
+                <label for="min-integer" class="block text-black mb-1">Mínimo:</label>
                 <div class="flex">
                     <input
                         id="min-integer"
