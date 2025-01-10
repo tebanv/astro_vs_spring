@@ -16,6 +16,7 @@ const initialRules = {
       rangeWithWordRules: [],
       dateRangeRules: [],
       specificValuesRules: [],
+      conditionalNonNullInColumnsspecificsRules: [],
       conditionalNonNullRules: [],    
     },
     dictionaries: {

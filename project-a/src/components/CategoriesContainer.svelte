@@ -11,9 +11,10 @@
   import SpecificValuesRules from './SpecificValuesRules.svelte';
   import ConditionalNonNullRules from './ConditionalNonNullRules.svelte';
   import Dictionaries from './Dictionaries.svelte';
-  
+ 
   import DuplicationRules from './DuplicationRules.svelte';
   import CompareDatesCard from './CompareDatesCard.svelte';
+  import ConditionalNonNullsspecific from './ConditionalNonNullsspecific.svelte';
 
   // import NotNullRulesTest from './NotNullRulesTest.svelte';
 
@@ -34,6 +35,7 @@
     <CompareDatesCard /> 
     <DateRangeRules /> 
     <SpecificValuesRules /> 
+    <ConditionalNonNullsspecific />
     <ConditionalNonNullRules /> 
     
     

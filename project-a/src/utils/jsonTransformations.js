@@ -64,7 +64,20 @@ export function transformJsonForBackend(state) {
         }
     }
 
-    return transformedState;
+// Handle conditionalNonNullInColumnsspecificRules
+if (transformedState.rules?.categories) {
+    // Remove the empty array if it exists
+    if (Array.isArray(transformedState.rules.categories.conditionalNonNullInColumnsspecificsRules)) {
+        delete transformedState.rules.categories.conditionalNonNullInColumnsspecificsRules;
+    }
+    
+    // Ensure the correct array is present
+    if (!Array.isArray(transformedState.rules.categories.conditionalNonNullInColumnsspecificRules)) {
+        transformedState.rules.categories.conditionalNonNullInColumnsspecificRules = [];
+    }
+}
+
+return transformedState;
 }
 
 export function transformJsonFromBackend(state) {
@@ -144,13 +157,25 @@ export function transformJsonFromBackend(state) {
         }
     }
 
-    return transformedState;
+// Handle conditionalNonNullInColumnsspecificRules
+if (transformedState.rules?.categories) {
+    // Remove the empty array if it exists
+    if (Array.isArray(transformedState.rules.categories.conditionalNonNullInColumnsspecificsRules)) {
+        delete transformedState.rules.categories.conditionalNonNullInColumnsspecificsRules;
+    }
+    
+    // Ensure the correct array is present
+    if (!Array.isArray(transformedState.rules.categories.conditionalNonNullInColumnsspecificRules)) {
+        transformedState.rules.categories.conditionalNonNullInColumnsspecificRules = [];
+    }
+}
+
+return transformedState;
 }
 
 export function transformJsonForAnalysis(state) {
     // Start with the backend transformation
     let transformedState = transformJsonForBackend(state);
-    
     
     transformedState.metadata = {
         timestamp: new Date().toISOString(),
