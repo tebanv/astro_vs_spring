@@ -2,6 +2,7 @@
   import { headersStore } from '../stores/headersStore.js';
   import { rulesStore } from '../stores/rulesStores.js';
   import { ChevronDown, ChevronUp, X } from 'lucide-svelte';
+  import Tooltip from './Tooltip.svelte';
 
   let selectedHeader1 = '';
   let selectedHeader2 = '';
@@ -48,11 +49,17 @@
   const toggleExpand = () => {
     isExpanded = !isExpanded;
   };
+  const tooltipContent = "Columna con la que se compara, Regla: Igual a, menor a, mayor a";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
   <div class="flex items-center justify-between">
-    <h2 class="text-lg font-bold text-black">Comparación con otra columana</h2>
+    <div class="flex items-center space-x-2">
+      <h2 class="text-lg font-bold text-black">Comparación con otra columna</h2>
+      <Tooltip content={tooltipContent}>
+        <Info size={20} class="text-gray-600 cursor-help" />
+      </Tooltip>
+    </div>
     <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">
       {#if isExpanded}
         <ChevronUp />

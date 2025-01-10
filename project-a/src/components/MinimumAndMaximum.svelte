@@ -2,6 +2,7 @@
     import { headersStore } from '../stores/headersStore.js';
     import { rulesStore } from '../stores/rulesStores.js';
     import { ChevronDown, ChevronUp, X } from 'lucide-svelte';
+    import Tooltip from './Tooltip.svelte';
 
     let isExpanded = false;
     let selectedHeader = '';
@@ -69,11 +70,15 @@
             return updatedStore;
         });
     }
+    const tooltipContent = "Minimo y Maximo numero de caracteres que pueda tener el valor de una columna";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
-        <h2 class="text-lg font-bold text-black">Comparación númerica</h2>
+        <div class="flex items-center gap-2">
+            <h2 class="text-lg font-bold text-black">Comparación numérica</h2>
+            <Tooltip content={tooltipContent} />
+        </div>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">
             {#if isExpanded}
                 <ChevronUp />

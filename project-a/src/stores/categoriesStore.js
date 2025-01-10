@@ -1,8 +1,7 @@
 import { writable } from 'svelte/store';
 
 // Definir las reglas de tipo de variable iniciales
-const initialVariableTypeRules = [
-  { name: 'notNull' },
+const initialVariableTypeRules = [  
   { name: 'numeric' },
   { name: 'string' },
   { name: 'uuid' },

@@ -2,6 +2,7 @@
     import { rulesStore } from '../stores/rulesStores.js';
     import { headersStore } from '../stores/headersStore.js';
     import { ChevronDown, ChevronUp, Plus, X } from 'lucide-svelte';
+    import Tooltip from './Tooltip.svelte';
 
     let selectedColumn = '';
     let selectedValue = '';
@@ -65,11 +66,17 @@
     function toggleExpand() {
         isExpanded = !isExpanded;
     }
+    const tooltipContent = "Columna seleccionada con un valor no nulo no puede tener un valor  nulo en columna comparada [ejemplo, Si estado es realizado, no puede haber valores nulos en fecha de intervención, profesional de intervención y en id de foto de despues";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
-        <h2 class="text-lg font-bold text-black">Condicional de no nulidad</h2>
+        <div class="flex items-center space-x-2">
+            <h2 class="text-lg font-bold text-black">Condicional de no nulidad</h2>
+            <Tooltip content={tooltipContent}>
+                <Info size={20} class="text-gray-600 cursor-help" />
+            </Tooltip>
+        </div>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">
             {#if isExpanded}
                 <ChevronUp />

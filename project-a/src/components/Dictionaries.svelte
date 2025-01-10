@@ -3,6 +3,7 @@
     import { headersStore } from '../stores/headersStore.js';
     import { ChevronDown, ChevronUp, Plus, X } from 'lucide-svelte';
     import { onMount } from 'svelte';
+    import Tooltip from './Tooltip.svelte';
 
     let selectedColumn = '';
     let dictionaryName = '';
@@ -95,11 +96,17 @@
     function toggleExpand() {
         isExpanded = !isExpanded;
     }
+    const tooltipContent = "Se debe seleccionar la columna y entrada del diccionario que el valor de la entrada debe coincidir (Nombres científicos con N. comunes, Barrios con comunas, hábito con especie, altura con tipo de altura, Listado de municipios)";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
-        <h2 class="text-lg font-bold text-black">Emparejamiento con Biblioteca</h2>
+        <div class="flex items-center space-x-2">
+            <h2 class="text-lg font-bold text-black">Emparejamiento con Biblioteca</h2>
+            <Tooltip content={tooltipContent}>
+                <Info size={20} class="text-gray-600 cursor-help" />
+            </Tooltip>
+        </div>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors" aria-label={isExpanded ? "Contraer sección" : "Expandir sección"}>
             {#if isExpanded}
                 <ChevronUp />

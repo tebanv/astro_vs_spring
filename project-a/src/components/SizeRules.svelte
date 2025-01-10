@@ -2,6 +2,7 @@
     import { headersStore } from '../stores/headersStore.js';
     import { rulesStore } from '../stores/rulesStores.js';
     import { ChevronDown, ChevronUp, X } from 'lucide-svelte';
+    import Tooltip from './Tooltip.svelte';
 
     let selectedHeader = '';
     let newSize = '';
@@ -52,11 +53,16 @@
             };
         });
     }
+
+    const tooltipContent = "La cabecera escogida debe tener una longitud de caracteres máxima al valor ingresado en el campo Tamaño";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
-        <h2 class="text-lg font-bold text-black">Longitud de cadena</h2>
+        <div class="flex items-center gap-2">
+            <h2 class="text-lg font-bold text-black">Longitud de cadena</h2>
+            <Tooltip content={tooltipContent} />
+        </div>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">
             {#if isExpanded}
                 <ChevronUp />
