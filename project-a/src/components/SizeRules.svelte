@@ -56,7 +56,7 @@
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
-        <h2 class="text-lg font-bold text-black">Reglas de Tamaño</h2>
+        <h2 class="text-lg font-bold text-black">Longitud de cadena</h2>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">
             {#if isExpanded}
                 <ChevronUp />

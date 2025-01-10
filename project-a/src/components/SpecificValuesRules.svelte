@@ -73,7 +73,7 @@
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
-        <h2 class="text-lg font-bold text-black">Reglas de Valores Específicos</h2>
+        <h2 class="text-lg font-bold text-black">Asociación de columanas para no nulidad</h2>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">
             {#if isExpanded}
                 <ChevronUp />

@@ -21,20 +21,22 @@
 
 <div class="space-y-6">
   <div class=" space-y-4">
-    <NullRules />
-    <NotNullRules />
-    <HeaderTypeAssociation />
-    <CompareColumnsCard />
-    <ColumnsOrder />
-    <RangeWithWord />
-    <DateRangeRules />
-    <CompareDatesCard />
-    <SizeRules />
-    <MinimumAndMaximum />
-    <SpecificValuesRules />
-    <ConditionalNonNullRules />
-    <Dictionaries />
-    <DuplicationRules />
+    <NullRules /> 
+    <NotNullRules /> 
+    <HeaderTypeAssociation /> 
+    <SizeRules /> 
+    <DuplicationRules /> 
+    <Dictionaries /> 
+    <RangeWithWord /> 
+    <CompareColumnsCard /> 
+    <MinimumAndMaximum /> 
+    <ColumnsOrder /> 
+    <CompareDatesCard /> 
+    <DateRangeRules /> 
+    <SpecificValuesRules /> 
+    <ConditionalNonNullRules /> 
+    
+    
     <!-- <NotNullRulesTest />    -->
 
   </div>
