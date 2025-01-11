@@ -2,13 +2,10 @@ package co.com.savia.usecase.analyzedatabase.util;
 
 import co.com.savia.model.report.request.*;
 import lombok.extern.log4j.Log4j2;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Log4j2
 public class Util {
@@ -20,6 +17,9 @@ public class Util {
     public static final String REGEX_UUID = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
     public static final String REGEX_BINARY = "[01]";
     public static final String PATTER_DATE_YYYY_MM_DD = "yyyy-MM-dd";
+    private static final String DICTIONARY_PATH = "C:\\Projects\\GitHub\\Savia\\databases";
+
+
 
     // 1 No Nulidad
     public static void validateFieldsNotNull(Map<String, String> record, List<String> fieldsNotNulls, List<String> errors) {
@@ -42,7 +42,7 @@ public class Util {
 
         for (String field : fieldNulls) {
             if (record.get(field) != null && !record.get(field).isEmpty()) {
-                nullFieldErrors.add(EL_CAMPO + field + " debe ser nulo o vacío");
+                nullFieldErrors.add(EL_CAMPO + field + " debe ser nulo o vacio");
             }
         }
 
@@ -63,7 +63,7 @@ public class Util {
                     validateType(rule, value, typeValidationErrors);
                 } catch (NumberFormatException e) {
                     log.error("Error en validateVariableType: {}, en ID: {}, record: {}", e.getMessage(), record.get("id"), record);
-                    typeValidationErrors.add(EL_CAMPO + rule.getName() + " debe ser numérico");
+                    typeValidationErrors.add(EL_CAMPO + rule.getName() + " debe ser numerico");
                 }
             }
         }
@@ -150,37 +150,6 @@ public class Util {
         }
     }
 
-    // 5 Emparejamiento con Biblioteca
-    public static void validateDictionaryEntries(Map<String, String> record, List<DictionaryValidationRule> rules,
-                                                 Map<String, DictionaryEntry> dictionary, List<String> errors) {
-        for (DictionaryValidationRule rule : rules) {
-            String fieldValue = record.get(rule.getFieldName());
-
-            // Extraer el ID del valor en el campo de registro, asumiendo que el formato es "857. Nombre"
-            String[] parts = fieldValue.split("\\. ", 2);
-
-            if (parts.length != 2) {
-                errors.add(EL_CAMPO + rule.getFieldName() + " no está en el formato esperado (id. Nombre). Valor actual: " + fieldValue);
-                continue;
-            }
-
-            String id = parts[0].trim();
-            String name = parts[1].trim();
-
-            DictionaryEntry entry = dictionary.get(id);
-
-            if (entry == null) {
-                errors.add("El ID " + id + " en el campo " + rule.getFieldName() + " no existe en el diccionario.");
-            } else {
-                String expectedName = rule.isValidateCientifico()
-                        ? entry.getFormattedCientifico()
-                        : entry.getFormattedComun();
-                if (!fieldValue.equals(expectedName.trim())) {
-                    errors.add(EL_CAMPO + rule.getFieldName() + " con valor '" + fieldValue + "' no coincide con el valor esperado '" + expectedName + "' según el diccionario.");
-                }
-            }
-        }
-    }
 
     // 6,1 Transformación númerica (área de polígono)
 
@@ -308,37 +277,65 @@ public class Util {
     }
 
     // 9 Conteo valores no nulos
-    public static void validateConditionalNonNull(Map<String, String> record, String conditionalFieldRule,
-                                                  List<String> conditionalNonNullErrors) {
-        String conditionalField = record.get(conditionalFieldRule);
+    public static void validateConditionalNonNullInColumns(Map<String, String> record, List<ConditionalNonNullInColumnsRule> rules,
+                                                  List<String> errors) {
+        if (!rules.isEmpty()) {
+            for (ConditionalNonNullInColumnsRule rule : rules) {
+                // Obtiene el valor de la columna seleccionada
+                String selectedColumnValue = record.get(rule.getSelectedColumn());
 
-        if (conditionalField == null || conditionalField.isEmpty()) {
-            conditionalNonNullErrors.add(EL_CAMPO + conditionalField + " está vacío o es nulo.");
-            return;
-        }
+                // Si el valor de la columna seleccionada no está vacío y es un número
+                if (selectedColumnValue != null && !selectedColumnValue.isEmpty()) {
+                    try {
+                        int number = Integer.parseInt(selectedColumnValue);
+                        List<String> columnsToValidate = rule.getColumnsToValidate();
 
-        try {
-            int nroTallos = Integer.parseInt(conditionalField);
+                        // Verifica las columnas que deberían estar llenas y vacías
+                        List<String> missingValues = new ArrayList<>();
+                        List<String> invalidNonNullValues = new ArrayList<>();
 
-            // Contador para verificar las columnas `cap` no nulas
-            int nonNullCount = 0;
+                        for (int i = 0; i < columnsToValidate.size(); i++) {
+                            String columnName = columnsToValidate.get(i);
+                            String columnValue = record.get(columnName);
 
-            for (int i = 1; i <= nroTallos; i++) {
-                String capColumn = "Cap" + i;
-                String capValue = record.get(capColumn);
+                            // Las primeras 'number' columnas deben tener valores numéricos
+                            if (i < number) {
+                                if (columnValue == null || columnValue.isEmpty() || !isNumeric(columnValue)) {
+                                    missingValues.add(columnName);
+                                }
+                            }
+                            // Las demás columnas deben ser nulas
+                            else {
+                                if (columnValue != null && !columnValue.isEmpty()) {
+                                    invalidNonNullValues.add(columnName);
+                                }
+                            }
+                        }
 
-                if (capValue != null && !capValue.trim().isEmpty()) {
-                    nonNullCount++;
+                        // Registra los errores encontrados
+                        if (!missingValues.isEmpty()) {
+                            errors.add("Cuando " + rule.getSelectedColumn() + " es '" + number + "', las siguientes columnas deben tener valores numericos: "
+                                    + String.join(", ", missingValues));
+                        }
+                        if (!invalidNonNullValues.isEmpty()) {
+                            errors.add("Cuando " + rule.getSelectedColumn() + " es '" + number + "', las siguientes columnas deben estar vacias: "
+                                    + String.join(", ", invalidNonNullValues));
+                        }
+                    } catch (NumberFormatException e) {
+                        // Si no es un número válido
+                        errors.add("El valor de la columna '" + rule.getSelectedColumn() + "' debe ser un numero. Valor encontrado: " + selectedColumnValue);
+                    }
                 }
             }
+        }
+    }
 
-            // Validar que el número de valores no nulos coincida con nro_tallos
-            if (nonNullCount < nroTallos) {
-                conditionalNonNullErrors.add("El número de columnas 'cap' no nulas es menor que el valor de nro_tallos (" + nroTallos + ").");
-            }
-
+    private static boolean isNumeric(String value) {
+        try {
+            Double.parseDouble(value);
+            return true;
         } catch (NumberFormatException e) {
-            conditionalNonNullErrors.add("El valor del campo " + conditionalField + " no es un número válido.");
+            return false;
         }
     }
 
@@ -408,43 +405,45 @@ public class Util {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(PATTER_DATE_YYYY_MM_DD);
         List<String> dateComparisonErrors = new ArrayList<>(); // Lista temporal para los errores de comparación de fechas
 
-        for (DateComparisonRule rule : dateComparisonRules) {
-            String dateOne = record.get(rule.getComparetorOne());
-            String dateTwo = record.get(rule.getComparetorTwo());
+        if (!dateComparisonRules.isEmpty()) {
+            for (DateComparisonRule rule : dateComparisonRules) {
+                String dateOne = record.get(rule.getComparetorOne());
+                String dateTwo = record.get(rule.getComparetorTwo());
 
-            if ((dateOne != null && !dateOne.isEmpty()) && (dateTwo != null && !dateTwo.isEmpty())) {
-                try {
-                    LocalDate localDateOne = LocalDate.parse(dateOne.trim(), formatter);
-                    LocalDate localDateTwo = LocalDate.parse(dateTwo.trim(), formatter);
+                if ((dateOne != null && !dateOne.isEmpty()) && (dateTwo != null && !dateTwo.isEmpty())) {
+                    try {
+                        LocalDate localDateOne = LocalDate.parse(dateOne.trim(), formatter);
+                        LocalDate localDateTwo = LocalDate.parse(dateTwo.trim(), formatter);
 
-                    switch (rule.getOperator()) {
-                        case "greater_than":
-                            if (!localDateOne.isAfter(localDateTwo)) {
-                                dateComparisonErrors.add(EL_CAMPO + rule.getComparetorOne() + " debe ser posterior a " + rule.getComparetorTwo());
-                            }
-                            break;
-                        case "less_than":
-                            if (!localDateOne.isBefore(localDateTwo)) {
-                                dateComparisonErrors.add(EL_CAMPO + rule.getComparetorOne() + " debe ser anterior a " + rule.getComparetorTwo());
-                            }
-                            break;
-                        case "equal_to":
-                            if (!localDateOne.equals(localDateTwo)) {
-                                dateComparisonErrors.add(EL_CAMPO + rule.getComparetorOne() + " debe ser igual a " + rule.getComparetorTwo());
-                            }
-                            break;
+                        switch (rule.getOperator()) {
+                            case "greater_than":
+                                if (!localDateOne.isAfter(localDateTwo)) {
+                                    dateComparisonErrors.add(EL_CAMPO + rule.getComparetorOne() + " debe ser posterior a " + rule.getComparetorTwo());
+                                }
+                                break;
+                            case "less_than":
+                                if (!localDateOne.isBefore(localDateTwo)) {
+                                    dateComparisonErrors.add(EL_CAMPO + rule.getComparetorOne() + " debe ser anterior a " + rule.getComparetorTwo());
+                                }
+                                break;
+                            case "equal_to":
+                                if (!localDateOne.equals(localDateTwo)) {
+                                    dateComparisonErrors.add(EL_CAMPO + rule.getComparetorOne() + " debe ser igual a " + rule.getComparetorTwo());
+                                }
+                                break;
+                        }
+                    } catch (DateTimeParseException e) {
+                        //log.error("Error en validateDateComparisons: {}, en ID: {}, recordOne: {}, recordTwo: {}", e.getMessage(), record.get("id"), record.get(rule.getComparetorOne()), record.get(rule.getComparetorTwo()));
+                        dateComparisonErrors.add("Los campos " + rule.getComparetorOne() + " y " + rule.getComparetorTwo() + " deben tener formato de fecha válido (yyyy-MM-dd)");
                     }
-                } catch (DateTimeParseException e) {
-                    //log.error("Error en validateDateComparisons: {}, en ID: {}, recordOne: {}, recordTwo: {}", e.getMessage(), record.get("id"), record.get(rule.getComparetorOne()), record.get(rule.getComparetorTwo()));
-                    dateComparisonErrors.add("Los campos " + rule.getComparetorOne() + " y " + rule.getComparetorTwo() + " deben tener formato de fecha válido (yyyy-MM-dd)");
+                } else {
+                    // Si uno de los campos es nulo o vacio
+                    //log.error("Error en validateDateComparisons: {}, en ID: {}, recordOne: {}, recordTwo: {}", "Fecha nula o vacia ", record.get("id"), record.get(rule.getComparetorOne()), record.get(rule.getComparetorTwo()));
+                    dateComparisonErrors.add("Los campos " + rule.getComparetorOne() + " y " + rule.getComparetorTwo() + " no deben estar vacíos o nulos");
                 }
-            } else {
-                // Si uno de los campos es nulo o vacio
-                //log.error("Error en validateDateComparisons: {}, en ID: {}, recordOne: {}, recordTwo: {}", "Fecha nula o vacia ", record.get("id"), record.get(rule.getComparetorOne()), record.get(rule.getComparetorTwo()));
-                dateComparisonErrors.add("Los campos " + rule.getComparetorOne() + " y " + rule.getComparetorTwo() + " no deben estar vacíos o nulos");
             }
-        }
 
+        }
         // Si hay errores en las comparaciones de fechas, los concatenamos y añadimos a la lista principal de errores
         if (!dateComparisonErrors.isEmpty()) {
             errors.add(String.join(DELIMITER, dateComparisonErrors));

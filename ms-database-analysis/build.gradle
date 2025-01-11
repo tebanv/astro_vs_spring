@@ -11,10 +11,11 @@ buildscript {
 
 plugins {
 	id 'co.com.bancolombia.cleanArchitecture' version "${cleanArchitectureVersion}"
-	id 'org.springframework.boot' version "${springBootVersion}" apply false
+	id 'org.springframework.boot' version "${springBootVersion}"
 	id 'info.solidsoft.pitest' version "${pitestVersion}" apply false
 	id 'org.sonarqube' version "${sonarVersion}"
 	id 'jacoco'
+    id 'application'
 }
 
 sonar {
@@ -32,6 +33,9 @@ sonar {
         property "sonar.pitest.reportPaths", "build/reports/pitest/mutations.xml"
         property "sonar.externalIssuesReportPaths", "build/issues.json"
     }
+}
+springBoot {
+    mainClass='co.com.savia.MainApplication'
 }
 
 apply from: './main.gradle'

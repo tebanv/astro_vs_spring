@@ -13,5 +13,5 @@ import java.util.List;
 @Builder(toBuilder = true)
 public class Rules {
     private Categories categories;
-    private List<Dictionary> dictionaries;
+    private Dictionary dictionaries;
 }

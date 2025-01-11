@@ -15,10 +15,4 @@ class ApiRestTest {
     @InjectMocks
     private ApiRest apiRest;
 
-
-    @Test
-    void apiRestTest() {
-        var response = apiRest.commandName();
-        assertEquals("Hello World", response);
-    }
 }

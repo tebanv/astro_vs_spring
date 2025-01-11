@@ -18,7 +18,6 @@ public class Categories {
     private List<SizeRule> sizeRules;
     private List<MinMaxRule> minimumAndMaximumRules;
     private List<String> duplicationRules;
-    //private List<DictionaryValidationRule> dictionaryValidationRules;
     private List<ComparisonWithOtherColumnRule> comparisonsWithOtherColumnRules;
     private List<DateComparisonRule> comparisonsWithDateRules;
     private List<OrderColumnRule> orderColumnsRules;
@@ -26,4 +25,5 @@ public class Categories {
     private List<DateRangeRule> dateRangeRules;
     private List<SpecificValuesRule> specificValuesRules;
     private List<ConditionalNonNullRule> conditionalNonNullRules;
+    private List<ConditionalNonNullInColumnsRule> conditionalNonNullInColumnsspecificRules;
 }

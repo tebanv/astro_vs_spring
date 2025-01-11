@@ -1,0 +1,18 @@
+dependencies {
+    implementation project(':model')
+    implementation 'org.springframework:spring-context'
+
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
+    // Optional extensions
+    implementation("com.github.ben-manes.caffeine:guava:3.1.8")
+    implementation("com.github.ben-manes.caffeine:jcache:3.1.8")
+
+
+    // Apache POI para manejar archivos Excel (XLSX)
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+    implementation 'com.opencsv:opencsv:5.7.1'
+    // Soporte para formatos más antiguos (XLS)
+    implementation 'org.apache.poi:poi:5.2.3'
+    // Requiere el paquete de XML Beans para trabajar con el formato ooxml
+    implementation 'org.apache.xmlbeans:xmlbeans:5.1.1'
+}

@@ -17,6 +17,8 @@ dependencies {
 
     // Requiere el paquete de XML Beans para trabajar con el formato ooxml
     implementation 'org.apache.xmlbeans:xmlbeans:5.1.1'
+
+    compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version: '3.0.1'
 }
 
 

@@ -5,12 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class Dictionary {
 
-    private String columnName;
-    private String dictionaryName;
+    List<DirectoriesNames> names;
+    List<DirectoriesNumbers> numbers;
+    List<DirectoriesHabits> habits;
+
 }

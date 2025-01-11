@@ -1,19 +1,27 @@
 package co.com.savia.usecase.analyzedatabase;
 
-import co.com.savia.model.report.request.DictionaryEntry;
-import co.com.savia.model.report.request.ValidationRules;
+import co.com.savia.model.excel.gateways.ExcelRepository;
+import co.com.savia.model.report.ReportModel;
+import co.com.savia.model.report.gateways.ReportRepository;
+import co.com.savia.model.report.request.*;
+import co.com.savia.model.report.response.DownloadReport;
+import co.com.savia.model.report.response.Error;
 import co.com.savia.model.report.response.ReportResponse;
 import co.com.savia.usecase.analyzedatabase.util.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Log4j2
@@ -21,67 +29,101 @@ import java.util.*;
 public class AnalyzeDatabaseUseCase {
 
     private final Environment environment;
+    private final ReportRepository reportRepository;
+    private final ExcelRepository excelRepository;
 
-    public ReportResponse analyzeDatabaseWithRules(List<Map<String, String>> records, ValidationRules rules,
-                                                   String fileName) {
-        try {
-            log.info("Se pasa a validar cada registro...");
-            List<String[]> errorRows = validateRecords(records, rules, fileName);
-            log.info("Registros validados...");
-            // Generar el archivo de errores
-            String errorFilePath = generateErrorFileExcel(errorRows, fileName);
+    public Mono<ReportResponse> analyzeDatabaseWithRules(List<Map<String, String>> records, ValidationRules rules,
+                                                         String fileName) {
+        if (!records.isEmpty() && !Objects.isNull(rules)) {
 
-            if (errorFilePath != null && !errorFilePath.isEmpty()) {
-                File errorFile = new File(errorFilePath);
+            String reportId = UUID.randomUUID().toString();
+            ReportModel reportModel = reportRepository.saveReport(ReportModel.builder()
+                    .status("PENDIENTE")
+                    .reportId(reportId)
+                    .build());
 
-                // Verificar si el archivo realmente existe en la ruta
-                if (errorFile.exists()) {
-                    log.info("Se generó un archivo de errores en la ruta: {}", errorFilePath);
+            analyzeDataBaseAndUpdateStatusReport(records, rules, fileName, reportId, reportModel);
 
-                    return ReportResponse.builder()
-                            .code(200)
-                            .message("Se encontraron errores en los registros. El archivo de errores se encuentra en: " + errorFilePath)
-                            .build();
-                } else {
-                    log.error("El archivo de errores no se pudo encontrar en la ruta: {}", errorFilePath);
-                    return ReportResponse.builder()
-                            .code(500)
-                            .message("Se encontraron errores, pero no se pudo generar el archivo de errores.")
-                            .build();
-                }
-            }
-            return ReportResponse.builder()
+            return Mono.just(ReportResponse.builder()
+                    .code(200)
+                    .data(reportModel)
+                    .build());
+        } else {
+            return Mono.just(ReportResponse.builder()
                     .code(400)
-                    .message("Se encontraron errores, revisa el archivo de errores.")
-                    .build();
-
-        } catch (Exception e) {
-            log.info("error: {}", e.getMessage());
-            return ReportResponse.builder()
-                    .code(500)
-                    .message("Error al procesar los archivos: " + e.getMessage())
-                    .build();
+                    .error(Error.builder()
+                            .detail("Bad Request")
+                            .message("Los archivos no pudieron ser leidos")
+                            .build())
+                    .build());
         }
+    }
 
+    private void analyzeDataBaseAndUpdateStatusReport(List<Map<String, String>> records, ValidationRules rules,
+                                                      String fileName, String reportId, ReportModel reportModel) {
+
+        log.info("Se empieza a validar cada registro...");
+        Mono.just(reportId)
+                .doOnNext(id -> {
+                    Mono.fromRunnable(() -> {
+                                validateRecordsAndGenerateErrorFile(records, rules, fileName, reportModel);
+                            }).subscribeOn(Schedulers.boundedElastic())
+                            .subscribe();
+                })
+                .subscribe();
+    }
+
+    private void validateRecordsAndGenerateErrorFile(List<Map<String, String>> records, ValidationRules rules,
+                                                     String fileName, ReportModel reportModel) {
+
+        List<String[]> errorRows = validateRecords(records, rules);
+        log.info("Se Validaron los registros correctamente...");
+
+        String errorFileName = Objects.requireNonNull(environment.getProperty("general.prefix-name"))
+                .concat(fileName)
+                .concat(Objects.requireNonNull(environment.getProperty("general.file-type-report-generated")));
+        String filePath = Objects.requireNonNull(environment.getProperty("general.file-path-report-generated"))
+                .concat(errorFileName);
+
+        String errorFilePath = excelRepository.generateErrorFileExcel(rules.getReport().getHeaders().size(),
+                errorRows, filePath);
+
+        if (errorFilePath != null && !errorFilePath.isEmpty()) {
+            File errorFile = new File(errorFilePath);
+
+            if (errorFile.exists()) {
+                log.info("Se generó un archivo de errores en la ruta: {}", errorFilePath);
+                reportModel.setStatus("COMPLETADO");
+                reportModel.setResultFilePath(errorFilePath);
+                reportModel.setFileName(errorFileName);
+                ReportModel reportModelUpdated = reportRepository.updateReport(reportModel);
+
+                log.info("Se actualiza registro en base de datos: {}", reportModelUpdated);
+            } else {
+                log.error("El archivo de errores no se pudo encontrar en la ruta: {}", errorFilePath);
+                reportModel.setStatus("ERROR");
+                ReportModel reportModelUpdated = reportRepository.updateReport(reportModel);
+
+                log.info(" Se actualiza registro en base de datos: {}", reportModelUpdated);
+            }
+        }
     }
 
     // Validar Bases de datos
-    private List<String[]> validateRecords(List<Map<String, String>> records, ValidationRules rules, String fileName) {
+    private List<String[]> validateRecords(List<Map<String, String>> records, ValidationRules rules) {
 
         List<String[]> errorRows = new ArrayList<>();
         List<String> reportHeaders = rules.getReport().getHeaders();
         List<String> completeHeaders = new ArrayList<>(reportHeaders);
 
-        Map<String, DictionaryEntry> dictionary = loadDictionary(environment.getProperty("routes.dictionary-common-names"));
-
         completeHeaders.addAll(environment.getProperty("headers.categoriesRules") != null ?
-                        Arrays.asList(Objects.requireNonNull(environment.getProperty("headers.categoriesRules")).split(",")) :
-                        null);
-
+                Arrays.asList(Objects.requireNonNull(environment.getProperty("headers.categoriesRules")).split(",")) :
+                null);
 
         String[] header = completeHeaders.toArray(new String[0]);
         errorRows.add(header);
-
+        // Calculate the starting index for error columns
+        int errorColumnStartIndex = reportHeaders.size();
         // Iterar sobre cada registro y realizar las validaciones
         for (Map<String, String> record : records) {
 
@@ -95,64 +137,72 @@ public class AnalyzeDatabaseUseCase {
             List<String> notNullErrors = new ArrayList<>();
             List<String> variableTypeErrors = new ArrayList<>();
             List<String> sizeErrors = new ArrayList<>();
-            List<String> minMaxErrors = new ArrayList<>();
             List<String> duplicationErrors = new ArrayList<>();
-            List<String> dictionaryValidationErrors = new ArrayList<>();
-            List<String> comparisonBetweenColumnsErrors = new ArrayList<>();
-            List<String> comparisonsWithDateErrors = new ArrayList<>();
-            List<String> orderColumnsErrors = new ArrayList<>();
+            List<String> dictionaryByNameErrors = new ArrayList<>();
+            List<String> dictionariesHabitsErrors = new ArrayList<>();
             List<String> rangeWithWordErrors = new ArrayList<>();
+            List<String> comparisonBetweenColumnsErrors = new ArrayList<>();
+            List<String> minMaxErrors = new ArrayList<>();
+            List<String> conditionalNonNullInColumnsErrors = new ArrayList<>();
+            List<String> orderColumnsErrors = new ArrayList<>();
+            List<String> comparisonsWithDateErrors = new ArrayList<>();
             List<String> datesRangeErrors = new ArrayList<>();
             List<String> specificValuesErrors = new ArrayList<>();
             List<String> conditionalNonNullErrors = new ArrayList<>();
 
-            // Validar campos no nulos
+            //1 Validar campos No Nulos
             Util.validateFieldsNotNull(record, rules.getRules().getCategories().getNotNullRules(), notNullErrors);
-            // Validar campos nulos
+            // 1,1 Validar campos Nulos
             Util.validateFieldsNull(record, rules.getRules().getCategories().getNullRules(), nullErrors);
-            // Validar tipo de variables
+            // 2 Validar Tipo de Variables
             Util.validateVariableType(record, rules.getRules().getCategories().getVariableTypeRules(), variableTypeErrors);
-            // Validar tamaños
+            //3 Validar Tamaños o Longitudes del campo
             Util.validateSize(record, rules.getRules().getCategories().getSizeRules(), sizeErrors);
-            // Validar mínimos y máximos
-            Util.validateMinMax(record, rules.getRules().getCategories().getMinimumAndMaximumRules(), minMaxErrors);
-            // Validar duplicaciones
+            //4 Validar duplicaciones
             Util.validateDuplications(record, records, rules.getRules().getCategories().getDuplicationRules(), duplicationErrors);
-            // Validar dictionary Validation
-            //Util.validateDictionaryEntries(record, rules.getRules().getCategories().getDictionaryValidationRules(), dictionary, dictionaryValidationErrors);
-            // Validar comparaciones entre campos
-            Util.validateComparisonsBetweenColumns(record, rules.getRules().getCategories().getComparisonsWithOtherColumnRules(), comparisonBetweenColumnsErrors);
-            // Validar comparaciones de fechas
-            Util.validateDateComparisons(record, rules.getRules().getCategories().getComparisonsWithDateRules(), comparisonsWithDateErrors);
-            // Validar orden de columnas
-            Util.validateColumnOrder(record, rules.getRules().getCategories().getOrderColumnsRules(), orderColumnsErrors);
-            // Validar rango con palabra
+            // 5 Validar dictionary por nombre
+            validateDictionaryEntries(record, rules.getRules().getDictionaries().getNames(), dictionaryByNameErrors);
+            // 5,1 Validar dictionary Validation
+            validateHabits(record, rules.getRules().getDictionaries().getHabits(), dictionariesHabitsErrors);
+            // 6 Validar rango con palabra
             Util.validateRangeWithWord(record, rules.getRules().getCategories().getRangeWithWordRules(), rangeWithWordErrors);
-            // Validar fechas entre rangos
+            // 7 Validar comparaciones entre columnas
+            Util.validateComparisonsBetweenColumns(record, rules.getRules().getCategories().getComparisonsWithOtherColumnRules(), comparisonBetweenColumnsErrors);
+            // 8 Validar mínimos y máximos
+            Util.validateMinMax(record, rules.getRules().getCategories().getMinimumAndMaximumRules(), minMaxErrors);
+            // 9 Validar condicionales not null en columnas
+            Util.validateConditionalNonNullInColumns(record,
+                        rules.getRules().getCategories().getConditionalNonNullInColumnsspecificRules(),
+                        conditionalNonNullInColumnsErrors);
+            // 10 Validar Orden de Columnas
+            Util.validateColumnOrder(record, rules.getRules().getCategories().getOrderColumnsRules(), orderColumnsErrors);
+            // 11 Validar Comparaciones de Fechas
+            Util.validateDateComparisons(record, rules.getRules().getCategories().getComparisonsWithDateRules(), comparisonsWithDateErrors);
+            // 11,1 Validar Rangos entre Fechas
             Util.validateDatesInRange(record, rules.getRules().getCategories().getDateRangeRules(), datesRangeErrors);
-            // Validar el valor de campos especificos
+            // 12 Validar el valor de campos especificos
             Util.validateSpecificValues(record, rules.getRules().getCategories().getSpecificValuesRules(), specificValuesErrors);
-            // Validar condicionales not nul
+            // 13 Validar condicionales not null
             Util.validateConditionalNonNull(record, rules.getRules().getCategories().getConditionalNonNullRules(), conditionalNonNullErrors);
 
             // Agregar los errores a las columnas correspondientes
-            errorRow[3] = String.join("; ", notNullErrors); // No Nulos
-            errorRow[4] = String.join("; ", nullErrors); // Nulos
-            errorRow[5] = String.join("; ", variableTypeErrors);    // Tipo de variable
-            errorRow[6] = String.join("; ", sizeErrors);  // Tamaño
-            errorRow[7] = String.join("; ", minMaxErrors); // MinMax
-            errorRow[8] = String.join("; ", duplicationErrors); // Duplicación
-            errorRow[9] = String.join("; ", dictionaryValidationErrors); // Diccionario
-            errorRow[10] = String.join("; ", comparisonBetweenColumnsErrors); // Comparación entre columnas
-            errorRow[11] = String.join("; ", comparisonsWithDateErrors); // Comparación entre fechas
+            errorRow[errorColumnStartIndex] = String.join("; ", notNullErrors); // 1 No Nulos
+            errorRow[errorColumnStartIndex + 1] = String.join("; ", nullErrors); // 1,1 Nulos
+            errorRow[errorColumnStartIndex + 2] = String.join("; ", variableTypeErrors);    // 2 Tipo de variable
+            errorRow[errorColumnStartIndex + 3] = String.join("; ", sizeErrors);  // 3 Tamaño
+            errorRow[errorColumnStartIndex + 4] = String.join("; ", duplicationErrors); // 4 Duplicación
+            errorRow[errorColumnStartIndex + 5] = String.join("; ", dictionaryByNameErrors); // 5 Diccionario por nombre
+            errorRow[errorColumnStartIndex + 6] = String.join("; ", dictionariesHabitsErrors); // 5,1 Diccionario por nombre
+            errorRow[errorColumnStartIndex + 7] = String.join("; ", rangeWithWordErrors); // 6 Rango con palabra
+            errorRow[errorColumnStartIndex + 8] = String.join("; ", comparisonBetweenColumnsErrors); // 7 Comparación entre columnas
+            errorRow[errorColumnStartIndex + 9] = String.join("; ", minMaxErrors); // 8 MinMax
+            errorRow[errorColumnStartIndex + 10] = String.join("; ", conditionalNonNullInColumnsErrors); // 9 Condionalidad de no nulos con valor numerico
+            errorRow[errorColumnStartIndex + 11] = String.join("; ", orderColumnsErrors); // 10 Orden de columnas
+            errorRow[errorColumnStartIndex + 12] = String.join("; ", comparisonsWithDateErrors); // 11 Comparación entre fechas
+            errorRow[errorColumnStartIndex + 13] = String.join("; ", datesRangeErrors); // 11,1 Rangos entre Fechas
+            errorRow[errorColumnStartIndex + 14] = String.join("; ", specificValuesErrors); // 12 valor de campos especificos
+            errorRow[errorColumnStartIndex + 15] = String.join("; ", conditionalNonNullErrors); // 13 condicionales not null
 
-            errorRow[12] = String.join("; ", orderColumnsErrors); // Orden de columnas
-            errorRow[13] = String.join("; ", rangeWithWordErrors); // Rango con palabra
-            errorRow[14] = String.join("; ", datesRangeErrors); // fechas entre rangos
-            errorRow[15] = String.join("; ", specificValuesErrors); // valor de campos especificos
-            errorRow[16] = String.join("; ", conditionalNonNullErrors); // condicionales not null
-
-            // Agregar los errores por cada categoría, separados por comas en una sola fila
             // Añadir la fila con errores a la lista de errores
             errorRows.add(errorRow);
         }
@@ -160,118 +210,196 @@ public class AnalyzeDatabaseUseCase {
         return errorRows;
     }
 
-    // Generar archivo en xlsx
-    private String generateErrorFileExcel(List<String[]> errorRows, String fileName) {
+    // Consultar estado del reporte de errores
+    public Mono<ReportModel> getReportStatus(String reportId) {
+        return Mono.just(reportRepository.findByReportId(reportId));
+    }
 
-        String filePath = Objects.requireNonNull(environment.getProperty("routes.file-path-report-generated"))
-                .concat(fileName)
-                .concat(Objects.requireNonNull(environment.getProperty("general.file-type-report-generated")));
-        try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet(environment.getProperty("general.sheet-name"));
-            log.info("Llego hasta aca..");
-            // Recorrer las filas de errores y escribirlas en el archivo Excel
-            int rowNum = 0;
-            for (String[] row : errorRows) {
-                if (hasErrors(row)) {
-                    Row excelRow = sheet.createRow(rowNum++); // Crear una fila en la hoja
-                    for (int i = 0; i < row.length; i++) {
-                        Cell cell = excelRow.createCell(i); // Crear una celda en la fila
-                        cell.setCellValue(row[i]); // Establecer el valor de la celda
-                    }
+    // Buscar archivo y promover la descarga
+    public DownloadReport getResource(String filename) {
+
+        Path filePath = Paths.get(Objects.requireNonNull(environment.getProperty("general.file-path-report-generated")))
+                .resolve(filename).normalize();
+
+        File file = filePath.toFile();
+
+        // Validar si el archivo existe
+        if (!file.exists()) {
+            log.info("archivo no existe");
+            return DownloadReport.builder()
+                    .code(404)
+                    .data(new ByteArrayResource(("File not found: " + filename).getBytes()))
+                    .build();
+        }
+
+        // Crear el recurso del archivo
+        Resource resource = new FileSystemResource(file);
+
+        return DownloadReport.builder()
+                .code(200)
+                .data(resource)
+                .build();
+    }
+
+    // Procesar el archivo Excel
+    public List<Map<String, String>> processExcelFile(InputStream dbFileInputStream) throws IOException {
+        return excelRepository.processExcelFile(dbFileInputStream);
+    }
+
+    // Validar diccionarios
+    public void validateDictionaryEntries(Map<String, String> record, List<DirectoriesNames> dictionaries, List<String> errors) {
+        // Si el arreglo de diccionarios está vacío, no hacer nada
+        if (dictionaries == null || dictionaries.isEmpty()) {
+            return;
+        }
+
+        for (DirectoriesNames dictionaryRule : dictionaries) {
+            String columnName = dictionaryRule.getColumnName(); // Nombre de la columna en los registros
+            String dictionaryName = dictionaryRule.getDictionaryName(); // Nombre del diccionario
+            String columnNameInDictionary = dictionaryRule.getColumnNameInDictionary(); // Nombre de la columna en el diccionario
+            String fieldValue = record.get(columnName); // Valor del registro en la columna
+
+            // Validar si el valor está vacío
+            if (fieldValue == null || fieldValue.trim().isEmpty()) {
+                errors.add("El campo " + columnName + " está vacío.");
+                continue;
+            }
+
+            try {
+                // Obtener el diccionario cargado
+                List<Map<String, String>> dictionaryEntries = excelRepository.getDictionary(dictionaryName);
+
+                // Validar si el diccionario está vacío
+                if (dictionaryEntries == null || dictionaryEntries.isEmpty()) {
+                    log.warn("El diccionario {} no se pudo cargar o está vacío.", dictionaryName);
+                    continue;
                 }
-            }
 
-            // Ajustar el tamaño de las columnas al contenido
-            for (int i = 0; i < errorRows.get(0).length; i++) {
-                sheet.autoSizeColumn(i);
-            }
+                // Validar si el valor del registro no está en el diccionario
+                boolean found = dictionaryEntries.stream()
+                        .anyMatch(entry -> {
+                            // Obtener el valor completo del diccionario para la columna
+                            String dictionaryValue = entry.get(columnNameInDictionary);
 
-            // Escribir el archivo en la ruta especificada
-            try (FileOutputStream outputStream = new FileOutputStream(filePath)) {
-                workbook.write(outputStream);
-            }
-        } catch (Exception e) {
-            log.error("Error creando archivo Excel: {}", e.getMessage());
-            filePath = null;
-        }
-        return filePath;
-    }
+                            // Si el diccionario tiene valores separados por comas, dividimos en términos y los normalizamos
+                            List<String> dictionaryTerms = Arrays.stream(dictionaryValue.split(","))
+                                    .map(String::trim)
+                                    .map(this::normalizeScientificName) // Normalizamos los términos
+                                    .toList();
 
+                            // Normalizar el valor del campo de la base de datos
+                            String normalizedFieldValue = normalizeScientificName(fieldValue);
 
-    // Cargar diccionario
-    private static Map<String, DictionaryEntry> loadDictionary(String filePath) {
-        Map<String, DictionaryEntry> dictionary = new HashMap<>();
+                            // Verificar si el valor normalizado coincide con algún término del diccionario
+                            return dictionaryTerms.contains(normalizedFieldValue) ||
+                                    dictionaryValue.toLowerCase().contains(normalizedFieldValue.toLowerCase());
+                        });
 
-        try (Workbook workbook = new XSSFWorkbook(new FileInputStream(filePath))) {
-            Sheet sheet = workbook.getSheetAt(1);  // Asumiendo que los datos están en la primera hoja
+                if (!found) {
+                    errors.add("El valor '" + fieldValue + "' en el campo '" + columnName +
+                            "' no se encuentra en el diccionario '" + dictionaryName +
+                            "' en la columna '" + columnNameInDictionary + "'.");
+                }
 
-            // Iterar desde la segunda fila, asumiendo que la primera fila contiene los encabezados
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (row == null) continue;
-
-                // Leer cada celda en la fila
-                String id = getCellValueAsString(row.getCell(0));
-                String nombreCientifico = getCellValueAsString(row.getCell(1));
-                String nombreComun = getCellValueAsString(row.getCell(2));
-                String family = getCellValueAsString(row.getCell(3));
-                String origen = getCellValueAsString(row.getCell(4));
-                String reportsInColombia = getCellValueAsString(row.getCell(5));
-                String habit = getCellValueAsString(row.getCell(6));
-                String finish = getCellValueAsString(row.getCell(7));
-
-                DictionaryEntry entry = DictionaryEntry.builder()
-                        .id(id)
-                        .nombreCientifico(nombreCientifico)
-                        .nombreComun(nombreComun)
-                        .family(family)
-                        .origen(origen)
-                        .reportsInColombia(reportsInColombia)
-                        .habit(habit)
-                        .finish(finish)
-                        .build();
-
-                dictionary.put(id, entry);
-            }
-        } catch (IOException e) {
-            log.error("Error obteniendo archivo de diccionario: {}", e.getMessage());
-            return null;
-        }
-
-        return dictionary;
-    }
-
-    // Validar registros de errores vacios
-    private boolean hasErrors(String[] row) {
-        int accumulate = 0;
-        for (int i = 3; i < row.length; i++) {
-            String value = row[i];
-            if (value != null && !value.trim().isEmpty()) {
-                accumulate++;
+            } catch (Exception e) {
+                log.error("Error al cargar o validar el diccionario {}: {}", dictionaryName, e.getMessage());
+                errors.add("Error al validar el campo " + columnName + " con el diccionario " + dictionaryName + ".");
             }
         }
-        return accumulate != 0;
     }
-
-    private static String getCellValueAsString(Cell cell) {
-        if (cell == null) {
+    private String normalizeScientificName(String value) {
+        if (value == null) {
             return "";
         }
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue();
-            case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getDateCellValue().toString();
-                } else {
-                    return String.valueOf((int) cell.getNumericCellValue());
+        // Eliminar números y caracteres no alfabéticos al principio
+        value = value.replaceAll("^[0-9.\\-\\s]+", ""); // Regex para eliminar números, puntos, guiones al inicio
+        // Eliminar espacios en exceso
+        value = value.trim().replaceAll("\\s+", " ");
+        return value;
+    }
+
+
+    public void validateHabits(Map<String, String> record, List<DirectoriesHabits> directoriesHabits, List<String> errors) {
+        if (directoriesHabits == null || directoriesHabits.isEmpty()) {
+            return;
+        }
+
+        for (DirectoriesHabits habitRule : directoriesHabits) {
+            String columnNameHabit = habitRule.getColumnNameHabit();
+            String columnNameToCompare = habitRule.getColumnNameToCompare();
+            String dictionaryName = habitRule.getDictionaryName();
+            String columnNameInDictionary = habitRule.getColumnNameInDictionary();
+            List<Habits> habits = habitRule.getHabits();
+
+            String habitValue = record.get(columnNameHabit);
+            String compareValueStr = record.get(columnNameToCompare);
+
+            // Validar si el valor del hábito está vacío
+            if (habitValue == null || habitValue.trim().isEmpty()) {
+                errors.add("El campo " + columnNameHabit + " está vacío.");
+                continue;
+            }
+
+            try {
+                // Obtener el diccionario cargado
+                List<Map<String, String>> dictionaryEntries = excelRepository.getDictionary(dictionaryName);
+
+                // Validar si el diccionario está vacío
+                if (dictionaryEntries == null || dictionaryEntries.isEmpty()) {
+                    log.warn("El diccionario {} no se pudo cargar o está vacío.", dictionaryName);
+                    continue;
                 }
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getCellFormula();
-            default:
-                return "";
+
+                // Validar si el valor del hábito no está en el diccionario
+                boolean found = dictionaryEntries.stream()
+                        .anyMatch(entry -> {
+                            String dictionaryValue = entry.get(columnNameInDictionary);
+
+                            List<String> dictionaryTerms = Arrays.stream(dictionaryValue.split(","))
+                                    .map(String::trim)
+                                    .map(this::normalizeScientificName)
+                                    .toList();
+
+                            String normalizedHabitValue = normalizeScientificName(habitValue);
+                            return dictionaryTerms.contains(normalizedHabitValue) ||
+                                    dictionaryValue.toLowerCase().contains(normalizedHabitValue.toLowerCase());
+                        });
+
+                if (!found) {
+                    errors.add("El valor '" + habitValue + "' en el campo '" + columnNameHabit +
+                            "' no se encuentra en el diccionario '" + dictionaryName +
+                            "' en la columna '" + columnNameInDictionary + "'.");
+                    continue;
+                }
+
+                // Validar la comparación de valores para el hábito
+                Optional<Habits> matchingHabit = habits.stream()
+                        .filter(h -> h.getHabit().equalsIgnoreCase(habitValue))
+                        .findFirst();
+
+                if (matchingHabit.isPresent()) {
+                    Habits habit = matchingHabit.get();
+                    double maxValue = Double.parseDouble(habit.getValue());
+
+                    try {
+                        double compareValue = Double.parseDouble(compareValueStr);
+                        if (compareValue > maxValue) {
+                            errors.add("El valor '" + compareValue + "' en la columna '" + columnNameToCompare +
+                                    "' para el hábito '" + habitValue +
+                                    "' excede el límite permitido de '" + maxValue + "'.");
+                        }
+                    } catch (NumberFormatException e) {
+                        errors.add("El valor '" + compareValueStr + "' en la columna '" + columnNameToCompare +
+                                "' no es un número válido.");
+                    }
+                }
+
+            } catch (Exception e) {
+                log.error("Error al cargar o validar el diccionario {}: {}", dictionaryName, e.getMessage());
+                errors.add("Error al validar el campo " + columnNameHabit + " con el diccionario " + dictionaryName + ".");
+            }
         }
     }
+
+
 }

@@ -1,17 +1,17 @@
 package co.com.savia.model.report.response;
-import lombok.Builder;
+import co.com.savia.model.report.ReportModel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-//import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
-//@NoArgsConstructor
+
+@lombok.Data
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class ReportResponse {
 
     private int code;
-    private String message;
+    private ReportModel data;
+    private Error error;
 }

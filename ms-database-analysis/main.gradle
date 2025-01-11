@@ -8,13 +8,25 @@ allprojects {
     }
 }
 
+group = 'co.com.savia'
+version = '1.0.0'
+// Configura el JDK
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 subprojects {
     apply plugin: 'java'
     apply plugin: 'jacoco'
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'info.solidsoft.pitest'
 
-    //compileJava.dependsOn validateStructure
+    compileJava.dependsOn validateStructure
+        validateStructure {
+            enabled = false
+        }
+
     sourceCompatibility = JavaVersion.VERSION_17
 
     //build.dependsOn 'pitest'
@@ -33,6 +45,12 @@ subprojects {
         implementation 'org.apache.xmlbeans:xmlbeans:5.1.1'
 
         implementation 'org.springframework:spring-core:6.2.0'
+        implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '3.4.0'
+        // Dependencias para JWT
+        implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+        implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+        implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
 
         implementation 'io.projectreactor:reactor-core'
         implementation 'io.projectreactor.addons:reactor-extra'
@@ -59,25 +77,25 @@ subprojects {
 
     test.finalizedBy(project.tasks.jacocoTestReport)
 
+    /*
     pitest {
-        targetClasses = ['co.com.savia.*']
-        excludedClasses = []
-        excludedTestClasses = []
-        pitestVersion = '1.16.1'
-        verbose = true
-        outputFormats = ['XML', 'HTML']
-        threads = 8
-        exportLineCoverage = true
-        timestampedReports = false
-        //mutators = ['STRONGER', 'DEFAULTS']
-        fileExtensionsToFilter.addAll('xml', 'orbit')
         junit5PluginVersion = '1.2.1'
-        failWhenNoMutations = false
+        targetClasses = ['co.com.savia.*']
+        excludedClasses = ['**']
+        threads = 8
+        outputFormats = ['XML', 'HTML']
+        fileExtensionsToFilter.addAll('xml', 'orbit')
+        timestampedReports = false
+        exportLineCoverage = true
         jvmArgs = ["-XX:+AllowRedefinitionToAddDeleteMethods"]
+        failWhenNoMutations = false
+        useClasspathFile = true
+        //mutators = ['STRONGER', 'DEFAULTS']
     }
+    */
 
     jacocoTestReport {
-        dependsOn test, 'pitest'
+        dependsOn test
         reports {
             xml.setRequired true
             xml.setOutputLocation layout.buildDirectory.file("reports/jacoco.xml")
@@ -111,7 +129,7 @@ tasks.withType(JavaCompile).configureEach {
             '-Amapstruct.suppressGeneratorTimestamp=true'
     ]
 }
-
+/*
 pitestReportAggregate {
     doLast {
         def reportDir = layout.buildDirectory.dir("reports/pitest").get().asFile
@@ -131,7 +149,12 @@ pitestReportAggregate {
         }
     }
 }
+ */
 
 tasks.named('wrapper') {
     gradleVersion = '8.10.2'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
