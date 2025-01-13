@@ -168,6 +168,18 @@
                     ]
                 }
             ],
+            "conditionalNonNullInColumnsspecificsRules": [
+                {
+                    "selectedColumn": "numero_tallos",
+                    "columnsToValidate": [
+                        "tallo_1",
+                        "tallo_2",
+                        "tallo_3",
+                        "tallo_4",
+                        "tallo_5"
+                    ]
+                }
+            ],
             "conditionalNonNullRules": [
                 {
                     "selectedColumn": "_estado",
@@ -180,12 +192,17 @@
                 }
             ]
         }, 
-        "dictionaries": [
-            {
-                "columnName": "nombre_c_2",
-                "dictionaryName": "BD NOMBRES CIENTIFICOS CORREGIDA 2024 (completa)"
-            }
-        ]
+        "dictionaries": {
+            "names": [
+                {
+                    "columnName": "nombre_c_1",
+                    "dictionaryName": "BD NOMBRES CIENTIFICOS CORREGIDA 2024 (completa)",
+                    "columnNameInDictionary": "Nombre Científico corregido"
+                }
+            ],
+            "numbers": [],
+            "habits": []
+        }
     },
     "report": {
         "headers": [
@@ -193,5 +210,10 @@
             "id",
             "prof_di_c3"
         ]
+    },    
+    "metadata": {
+        "timestamp": "2024-11-28T21:01:35.079Z",
+        "version": "1.0"
     }
+    
 }
