@@ -10,7 +10,7 @@ En la Categoria "Cabeceras del Reporte" poner que el boton muestre Agregar Cabec
 Agregar nuevo Diccionario por Codigo
 Color gris opaco en cabecera agregada del mismo color en todas las categorias
 Cambiar como se muestran los tipos de variable (string = Texto, numeric = Numerico, uuid = Alfanumerico, binary = 0 o 1, boolean = Verdadero o Falso)
-Modificar nombres de las categorias por los que hay en el archivo repo/Categorias y Leyenda v2
+Modificar nombres de las categorias por los que hay en el archivo astro_vs_spring/testfiles/Categorias y Leyenda v2.xlsx
 Poner un mensaje de "Cargano Excel... " porque cuando se carga un archivo muy grande parece que la pagina se hubiera bloqueado
 Agregar Boton para cerrar sesion 
 Agregar validacion en la pagina principal de cargar si hay token en el localstorage y sino redireccionar a /login
