@@ -1,0 +1,17 @@
+En la regla "Comparación con otra columna" poner que el boton muestre Agregar Comparación
+En la regla "Orden cuantitativo"  poner que el boton muestre Agregar Regla
+En la regla "Comparación de columnas de fecha"  poner que el boton muestre Agregar Comparación
+en la regla "Asociación de columanas para no nulidad" poner que el boton muestre Agregar Regla
+En la regla "Reglas Validacion No Nulos" poner que el boton muestre Agregar Regla
+En la regla "Condicional de no nulidad" poner que el boton muestre Agregar Regla
+En la regla "Condicional de no nulidad" que la Leyenda se pueda ver completa
+En la Categoria "Cabeceras del Reporte" poner que el boton muestre Agregar Cabecera
+
+Color gris opaco en cabecera agregada del mismo color en todas las categorias
+Cambiar como se muestran los tipos de variable (string = Texto, numeric = Numerico, uuid = Alfanumerico, binary = 0 o 1, boolean = Verdadero o Falso)
+Modificar nombres de las categorias por los que hay en el archivo repo/Categorias y Leyenda v2
+Poner un mensaje de "Cargano Excel... " porque cuando se carga un archivo muy grande parece que la pagina se hubiera bloqueado
+Agregar Boton para cerrar sesion 
+Agregar validacion en la pagina principal de cargar si hay token en el localstorage y sino redireccionar a /login
+Agregar Logo de favicon para que aparezca en el navegador el logo de Savia
+
