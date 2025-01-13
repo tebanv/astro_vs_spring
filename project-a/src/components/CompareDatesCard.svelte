@@ -1,5 +1,6 @@
 <script>
   import { rulesStore } from '../stores/rulesStores.js';
+  import { headersStore } from '../stores/headersStore.js';
   import { ChevronDown, ChevronUp, X } from 'lucide-svelte';
   import Tooltip from './Tooltip.svelte';
 
@@ -8,6 +9,7 @@
   let selectedOperator = '';
   let isExpanded = false;
 
+  $: headers = $headersStore;
   $: comparisons = $rulesStore.rules.categories?.comparisonsWithDateRules || [];
 
   const addComparison = () => {
@@ -47,15 +49,15 @@
   const toggleExpand = () => {
     isExpanded = !isExpanded;
   };
-  const tooltipContent = "Se selecciona la columna con la que se hará la comparación. Ejemplo= fecha de diagnóstico no puede ser posterior a fecha de intervención";
+  const tooltipContent = "Se seleccionan dos columnas de fecha para comparar. Ejemplo: la fecha de diagnóstico no puede ser posterior a la fecha de intervención";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-2">
-      <h2 class="text-lg font-bold text-black">Comparación de fechas</h2>
+      <h2 class="text-lg font-bold text-black">Comparación de columnas de fecha</h2>
       <Tooltip content={tooltipContent} />
-  </div>
+    </div>
     <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">
       {#if isExpanded}
         <ChevronUp />
@@ -67,16 +69,20 @@
   
   {#if isExpanded}
     <div class="flex flex-wrap items-center gap-4 mb-4 mt-4">
-      <input
-        type="date"
+      <select
         bind:value={comparetorOne}
-        class="bg-zinc-600 text-white p-1 rounded-md text-sm flex-grow"
-        aria-label="Seleccionar primera fecha"
-      />
+        class="bg-zinc-600 text-white p-1 rounded-md  flex-grow"
+        aria-label="Seleccionar primera columna de fecha"
+      >
+        <option value="">Seleccionar columna</option>
+        {#each headers as header}
+          <option value={header}>{header}</option>
+        {/each}
+      </select>
   
       <select
         bind:value={selectedOperator}
-        class="bg-zinc-600 text-white p-1 rounded-md text-sm flex-grow"
+        class="bg-zinc-600 text-white p-1 rounded-md flex-grow"
         aria-label="Seleccionar operador"
       >
         <option value="">Operador</option>
@@ -85,16 +91,20 @@
         <option value="equal_to">Igual a (=)</option>
       </select>
   
-      <input
-        type="date"
+      <select
         bind:value={comparetorTwo}
-        class="bg-zinc-600 text-white p-1 rounded-md text-sm flex-grow"
-        aria-label="Seleccionar segunda fecha"
-      />
+        class="bg-zinc-600 text-white p-1 rounded-md  flex-grow"
+        aria-label="Seleccionar segunda columna de fecha"
+      >
+        <option value="">Seleccionar columna</option>
+        {#each headers as header}
+          <option value={header}>{header}</option>
+        {/each}
+      </select>
 
       <button
         on:click={addComparison}
-        class="bg-green-500 text-white px-2 py-1 rounded-md hover:bg-green-600 transition-colors text-sm flex-shrink-0"
+        class="bg-green-500 text-white px-2 py-1 rounded-md hover:bg-green-600 transition-colors flex-shrink-0"
         disabled={!comparetorOne || !comparetorTwo || !selectedOperator}
       >
         Añadir
@@ -104,7 +114,11 @@
     <div class="space-y-2">
       {#each comparisons as comparison, index (index)}
         <div class="flex items-center justify-between bg-zinc-600/50 p-2 rounded-md">
-          <span class="text-white">{comparison.comparetorOne} {comparison.operator} {comparison.comparetorTwo}</span>
+          <span class="text-white">
+            {comparison.comparetorOne} 
+            {comparison.operator === 'less_than' ? 'antes que' : comparison.operator === 'greater_than' ? 'después que' : 'igual a'} 
+            {comparison.comparetorTwo}
+          </span>
           <button
             on:click={() => removeComparison(index)}
             class="text-red-400 hover:text-red-600 transition-colors"
