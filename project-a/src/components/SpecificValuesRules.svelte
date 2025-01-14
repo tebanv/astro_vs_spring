@@ -70,13 +70,13 @@
     function toggleExpand() {
         isExpanded = !isExpanded;
     }
-    const tooltipContent = "Validacion de valores especificos. Ejemplo= _Status debe tener valor especifico Validado o Realizado";
+    const tooltipContent = "Validacion de valores especificos. Ejemplo= _Status debe tener valor especifico Validado o Realizado.";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <h2 class="text-lg font-bold text-black">Asociación de columanas para no nulidad</h2>
+            <h2 class="text-lg font-bold text-black">12 Reglas de Valores Específicos</h2>
             <Tooltip content={tooltipContent} />
         </div>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">

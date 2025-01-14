@@ -22,8 +22,8 @@
 
 <div class="space-y-6">
   <div class=" space-y-4">
-    <NullRules /> 
     <NotNullRules /> 
+    <NullRules /> 
     <HeaderTypeAssociation /> 
     <SizeRules /> 
     <DuplicationRules /> 

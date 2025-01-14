@@ -53,13 +53,13 @@
         isExpanded = !isExpanded;
     }
 
-    const tooltipContent = "Debe ser: Texto, Número entero, Número decimal, Alfanumerico, Si o No, Falso o Verdadero, Binario";
+    const tooltipContent = "El valor en la columna seleccionada Debe ser: Texto, Número entero, Número decimal, Alfanumerico, Si o No, Falso o Verdadero, Binario.";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <h2 class="text-lg font-bold text-black">Tipo de Variable</h2>
+            <h2 class="text-lg font-bold text-black">2 Tipos de Variable</h2>
             <Tooltip content={tooltipContent} />
         </div>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">

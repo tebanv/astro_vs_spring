@@ -86,13 +86,13 @@
     function toggleExpand() {
         isExpanded = !isExpanded;
     }
-    const tooltipContent = "Aplica regla de tipo para encontrar tipo de altura y compararla con columna tipo de altura. La regla es de: menor o igual a 5 m es Tipo1, Menor o igual a 15 m es Tipo 2, menor o igual a 20 metros es Tipo 3 y mayor a 20 m es Tipo 4";
+    const tooltipContent = "Se Aplica regla para validar palabras claves si una columna tiene un valor entre un rango. La regla es de: menor o igual a 5 m es Tipo1, Menor o igual a 15 m es Tipo 2, menor o igual a 20 metros es Tipo 3 y mayor a 20 m es Tipo 4.";
   </script>
   
   <div class="custom-green-div p-4 rounded-lg">
     <div class="flex justify-between items-center">
         <div class="flex items-center space-x-2">
-            <h2 class="text-lg font-bold text-black">Transformación númerica</h2>
+            <h2 class="text-lg font-bold text-black">6 Rangos con Palabras Clave</h2>
             <Tooltip content={tooltipContent}>
                 <Info size={20} class="text-gray-600 cursor-help" />
             </Tooltip>

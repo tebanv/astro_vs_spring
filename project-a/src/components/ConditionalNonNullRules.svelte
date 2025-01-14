@@ -66,13 +66,13 @@
     function toggleExpand() {
         isExpanded = !isExpanded;
     }
-    const tooltipContent = "Columna seleccionada con un valor no nulo no puede tener un valor  nulo en columna comparada [ejemplo, Si estado es realizado, no puede haber valores nulos en fecha de intervención, profesional de intervención y en id de foto de despues";
+    const tooltipContent = "Columna seleccionada con un valor no nulo no puede tener un valor  nulo en columna comparada [ejemplo, Si estado es realizado, no puede haber valores nulos en fecha de intervención, profesional de intervención y en id de foto de despues]";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
-            <h2 class="text-lg font-bold text-black">Condicional de no nulidad</h2>
+            <h2 class="text-lg font-bold text-black">13 No nulidad por columna condicionante. </h2>
             <Tooltip content={tooltipContent}>
                 <Info size={20} class="text-gray-600 cursor-help" />
             </Tooltip>

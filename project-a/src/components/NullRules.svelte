@@ -38,13 +38,13 @@
         isExpanded = !isExpanded;
     }
 
-    const tooltipContent = "Este valor no debe ser nulo";
+    const tooltipContent = "El valor en la columna seleccionada debe ser nulo.";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg relative">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <h2 class="text-lg font-bold text-black">Nulos</h2>
+            <h2 class="text-lg font-bold text-black">1,1 Detección de no nulidad</h2>
             <Tooltip content={tooltipContent} />
         </div>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">

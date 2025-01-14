@@ -48,13 +48,13 @@
     const toggleExpand = () => {
         isExpanded = !isExpanded;
     };
-    const tooltipContent = "Se selecciona la fecha inicial y final que debe estar contenida en los valores de la columna de referencia";
+    const tooltipContent = "Se selecciona la fecha inicial y final que debe estar contenida en los valores de la columna de referencia.";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
-            <h2 class="text-lg font-bold text-black">Rango de fechas</h2>
+            <h2 class="text-lg font-bold text-black">11,1 Rango de Fechass</h2>
             <Tooltip content={tooltipContent}>
                 <Info size={20} class="text-gray-600 cursor-help" />
             </Tooltip>

@@ -64,13 +64,13 @@
         isExpanded = !isExpanded;
     }
 
-    const tooltipContent = "Selecciona una columna y una o varias más para comparar. Si la columna seleccionada no es nula, las columnas a validar tampoco pueden ser nulas.";
+    const tooltipContent = "Validacion de numero de columnas con valor y con null de acuerdo al numero que haya en una columna seleccionada, ejemplo=  si en la columna de la tabla de excel numero_tallos esta el numero 2, entonces en las columnas previamente seleccionadas por el cliente como tallo_1, tallo_2, tallo_3, tallo_4, tallo_5, entonces tallo_1, tallo_2 deberian estar llenas por algun valor numerico y tallo_3, tallo_4 y tallo_5 en null";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
-            <h2 class="text-lg font-bold text-black">Reglas Validacion No Nulos</h2>
+            <h2 class="text-lg font-bold text-black">9 Reglas Validación No Nulos</h2>
             <Tooltip content={tooltipContent}>
                 <Info size={20} class="text-gray-600 cursor-help" />
             </Tooltip>

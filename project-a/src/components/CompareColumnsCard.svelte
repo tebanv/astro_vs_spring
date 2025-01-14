@@ -49,13 +49,13 @@
   const toggleExpand = () => {
     isExpanded = !isExpanded;
   };
-  const tooltipContent = "Columna con la que se compara, Regla: Igual a, menor a, mayor a";
+  const tooltipContent = "El valor de la primer Columna debe ser [ Igual a, Menor a o Mayor a ] con la que se compara.";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
   <div class="flex items-center justify-between">
     <div class="flex items-center space-x-2">
-      <h2 class="text-lg font-bold text-black">Comparación con otra columna</h2>
+      <h2 class="text-lg font-bold text-black">7 Comparar Columnas</h2>
       <Tooltip content={tooltipContent}>
         <Info size={20} class="text-gray-600 cursor-help" />
       </Tooltip>

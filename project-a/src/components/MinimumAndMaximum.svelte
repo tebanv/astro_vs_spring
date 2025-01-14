@@ -70,13 +70,13 @@
             return updatedStore;
         });
     }
-    const tooltipContent = "Minimo y Maximo numero de caracteres que pueda tener el valor de una columna";
+    const tooltipContent = "El valor en la columna seleccionada debe tener un Minimo y Maximo numericos.";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <h2 class="text-lg font-bold text-black">Comparación numérica</h2>
+            <h2 class="text-lg font-bold text-black">8 Reglas de Mínimo y Máximo</h2>
             <Tooltip content={tooltipContent} />
         </div>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">

@@ -1,7 +1,7 @@
 <script>
     import { rulesStore } from '../stores/rulesStores.js';
     import { headersStore } from '../stores/headersStore.js';
-    import { ChevronDown, ChevronUp, Plus, X } from 'lucide-svelte';
+    import { ChevronDown, ChevronUp, Plus, X, Info } from 'lucide-svelte';
     import { onMount } from 'svelte';
     import Tooltip from './Tooltip.svelte';
 
@@ -24,19 +24,19 @@
     onMount(() => {
         if (!$rulesStore.rules.dictionaries) {
             rulesStore.update(store => {
-                store.rules.dictionaries = { names: [], numbers: [], habits: [] };
+                store.rules.dictionaries = { names: [], codes: [], habits: [] };
                 return store;
             });
         }
     });
 
     function addDictionary() {
-        if (activeTab === 'names' && selectedColumn && dictionaryName && columnNameInDictionary) {
+        if ((activeTab === 'names' || activeTab === 'codes') && selectedColumn && dictionaryName && columnNameInDictionary) {
             rulesStore.update(store => {
-                if (!store.rules.dictionaries.names) {
-                    store.rules.dictionaries.names = [];
+                if (!store.rules.dictionaries[activeTab]) {
+                    store.rules.dictionaries[activeTab] = [];
                 }
-                store.rules.dictionaries.names.push({
+                store.rules.dictionaries[activeTab].push({
                     columnName: selectedColumn,
                     dictionaryName,
                     columnNameInDictionary
@@ -84,8 +84,8 @@
 
     function removeDictionary(index) {
         rulesStore.update(store => {
-            if (activeTab === 'names') {
-                store.rules.dictionaries.names.splice(index, 1);
+            if (activeTab === 'names' || activeTab === 'codes') {
+                store.rules.dictionaries[activeTab].splice(index, 1);
             } else if (activeTab === 'habits') {
                 store.rules.dictionaries.habits.splice(index, 1);
             }
@@ -96,13 +96,13 @@
     function toggleExpand() {
         isExpanded = !isExpanded;
     }
-    const tooltipContent = "Se debe seleccionar la columna y entrada del diccionario que el valor de la entrada debe coincidir (Nombres científicos con N. comunes, Barrios con comunas, hábito con especie, altura con tipo de altura, Listado de municipios)";
+    const tooltipContent = "Se debe seleccionar la columna y entrada del diccionario que el valor de la entrada debe coincidir (Nombres cientificos con N. comunes, Barrios con comunas, hábito con especie, altura con tipo de altura, Listado de municipios).";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
-            <h2 class="text-lg font-bold text-black">Emparejamiento con Biblioteca</h2>
+            <h2 class="text-lg font-bold text-black">5 Validacion con Diccionarios</h2>
             <Tooltip content={tooltipContent}>
                 <Info size={20} class="text-gray-600 cursor-help" />
             </Tooltip>
@@ -136,16 +136,16 @@
                     Hábitos
                 </button>
                 <button 
-                    class:bg-blue-500={activeTab === 'numbers'} 
-                    class:bg-gray-300={activeTab !== 'numbers'}
+                    class:bg-blue-500={activeTab === 'codes'} 
+                    class:bg-gray-300={activeTab !== 'codes'}
                     class="px-4 py-2 rounded text-white"
-                    on:click={() => activeTab = 'numbers'}
+                    on:click={() => activeTab = 'codes'}
                 >
-                    Números
+                    Codes
                 </button>
             </div>
 
-            {#if activeTab === 'names'}
+            {#if activeTab === 'names' || activeTab === 'codes'}
                 <div class="space-y-2">
                     <select 
                         bind:value={selectedColumn} 
@@ -185,9 +185,9 @@
                     </button>
                 </div>
 
-                {#if dictionaries.names && dictionaries.names.length > 0}
+                {#if dictionaries[activeTab] && dictionaries[activeTab].length > 0}
                     <div class="space-y-2">
-                        {#each dictionaries.names as dictionary, index}
+                        {#each dictionaries[activeTab] as dictionary, index}
                             <div class="bg-zinc-700 p-3 rounded-md flex justify-between items-center">
                                 <div>
                                     <span class="text-white font-semibold">{dictionary.columnName}</span>
@@ -325,8 +325,6 @@
                         {/each}
                     </div>
                 {/if}
-            {:else if activeTab === 'numbers'}
-                <p class="text-gray-300">Funcionalidad de números aún no implementada.</p>
             {/if}
         </div>
     {/if}

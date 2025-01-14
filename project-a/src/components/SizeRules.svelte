@@ -54,13 +54,13 @@
         });
     }
 
-    const tooltipContent = "La cabecera escogida debe tener una longitud de caracteres máxima al valor ingresado en el campo Tamaño";
+    const tooltipContent = "El valor en la columna seleccionada debe tener una longitud de caracteres maxima al valor ingresado en el campo Tamaño.";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <h2 class="text-lg font-bold text-black">Longitud de cadena</h2>
+            <h2 class="text-lg font-bold text-black">3 Conteo de número de caracteres</h2>
             <Tooltip content={tooltipContent} />
         </div>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">
