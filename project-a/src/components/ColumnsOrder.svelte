@@ -138,7 +138,7 @@
         class="bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition-colors flex items-center"
         disabled={!orderType || selectedColumns.every(col => !col.value)}
       >
-        <Save size={20} class="mr-1" /> Grabar regla
+        Agregar
       </button>
     </div>
 

@@ -142,7 +142,7 @@
                     disabled={!selectedColumn || !selectedValue || selectedComparedColumns.length === 0}
                     class="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    Confirmar Regla
+                    Agregar
                 </button>
             </div>
 

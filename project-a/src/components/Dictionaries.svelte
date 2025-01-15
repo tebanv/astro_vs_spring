@@ -180,8 +180,7 @@
                         class="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         aria-label="Agregar diccionario"
                     >
-                        <Plus class="inline-block mr-2" />
-                        Agregar Diccionario
+                       Agregar
                     </button>
                 </div>
 
@@ -251,9 +250,9 @@
                         on:click={addHabit}
                         disabled={!habit || !value}
                         class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        aria-label="Agregar hábito"
+                        aria-label="Agregar"
                     >
-                        <Plus class="inline-block mr-2" />
+                        
                         Agregar Hábito
                     </button>
 
@@ -294,10 +293,10 @@
                         on:click={addDictionary}
                         disabled={!columnNameHabit || !columnNameToCompare || habits.length === 0 || !dictionaryName || !columnNameInDictionary}
                         class="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        aria-label="Agregar diccionario de hábitos"
+                        aria-label="Agregar"
                     >
-                        <Plus class="inline-block mr-2" />
-                        Agregar Diccionario de Hábitos
+                        
+                        Agregar
                     </button>
                 </div>
 

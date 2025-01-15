@@ -195,7 +195,7 @@
             class="w-full bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition-colors mb-4"
             disabled={!selectedRangeColumn || !selectedTypeColumn}
         >
-            Agregar Rango
+            Agregar
         </button>
   
         {#if errorMessage}

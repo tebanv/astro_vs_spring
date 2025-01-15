@@ -110,7 +110,7 @@
       class="bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition-colors w-full mb-4"
       disabled={!selectedHeader1 || !selectedHeader2 || !selectedOperator}
     >
-      Añadir Comparación
+      Agregar
     </button>
   
     <div class="space-y-2">

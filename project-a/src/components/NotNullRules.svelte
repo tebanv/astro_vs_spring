@@ -1,7 +1,7 @@
 <script>
     import { headersStore } from '../stores/headersStore.js';
     import { rulesStore } from '../stores/rulesStores.js';
-    import { ChevronDown, ChevronUp, X } from 'lucide-svelte';
+    import { ChevronDown, ChevronUp, X, Save } from 'lucide-svelte';
     import Tooltip from './Tooltip.svelte';
 
     let selectedHeader = '';
@@ -73,7 +73,7 @@
                 class="bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition-colors"
                 disabled={!selectedHeader}
             >
-                Agregar
+            Agregar
             </button>
         </div>
 
