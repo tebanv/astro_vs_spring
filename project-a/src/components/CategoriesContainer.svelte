@@ -31,13 +31,12 @@
     <RangeWithWord /> 
     <CompareColumnsCard /> 
     <MinimumAndMaximum /> 
+    <ConditionalNonNullsspecific />
     <ColumnsOrder /> 
     <CompareDatesCard /> 
     <DateRangeRules /> 
-    <SpecificValuesRules /> 
-    <ConditionalNonNullsspecific />
+    <SpecificValuesRules />         
     <ConditionalNonNullRules /> 
-    
     
     <!-- <NotNullRulesTest />    -->
 

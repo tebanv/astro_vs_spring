@@ -187,7 +187,7 @@
                 {#if dictionaries[activeTab] && dictionaries[activeTab].length > 0}
                     <div class="space-y-2">
                         {#each dictionaries[activeTab] as dictionary, index}
-                            <div class="bg-zinc-700 p-3 rounded-md flex justify-between items-center">
+                            <div class="bg-zinc-600/50 p-3 rounded-md flex justify-between items-center">
                                 <div>
                                     <span class="text-white font-semibold">{dictionary.columnName}</span>
                                     <span class="text-gray-400 ml-2">-</span>
@@ -259,7 +259,7 @@
                     {#if habits.length > 0}
                         <div class="space-y-2">
                             {#each habits as habit, index}
-                                <div class="bg-zinc-600 p-2 rounded-md flex justify-between items-center">
+                                <div class="bg-zinc-600/50 p-2 rounded-md flex justify-between items-center">
                                     <span>{habit.habit} - {habit.value}</span>
                                     <button 
                                         on:click={() => removeHabit(index)}
@@ -303,7 +303,7 @@
                 {#if dictionaries.habits && dictionaries.habits.length > 0}
                     <div class="space-y-2">
                         {#each dictionaries.habits as dictionary, index}
-                            <div class="bg-zinc-700 p-3 rounded-md flex justify-between items-center">
+                            <div class="bg-zinc-600/50 p-3 rounded-md flex justify-between items-center">
                                 <div>
                                     <span class="text-white font-semibold">{dictionary.columnNameHabit}</span>
                                     <span class="text-gray-400 ml-2">-</span>

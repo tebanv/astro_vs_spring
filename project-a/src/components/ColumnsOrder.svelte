@@ -146,7 +146,7 @@
       <div class="mt-4">
         <h3 class="text-white font-bold mb-2">Reglas guardadas:</h3>
         {#each savedRules as rule, index}
-          <div class="bg-zinc-700 p-2 rounded-md mb-2 flex justify-between items-center">
+          <div class="bg-zinc-600/50 p-2 rounded-md mb-2 flex justify-between items-center">
             <span class="text-white">
               {rule.columns.join(', ')} - {rule.orderType}
             </span>

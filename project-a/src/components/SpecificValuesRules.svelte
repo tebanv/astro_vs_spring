@@ -121,7 +121,7 @@
             {#if specificValuesRules.length > 0}
                 <div class="space-y-2">
                     {#each specificValuesRules as rule}
-                        <div class="bg-zinc-700 p-3 rounded-md">
+                        <div class="bg-zinc-600/50 p-3 rounded-md">
                             <h3 class="text-white font-semibold mb-2">{rule.columnName}</h3>
                             <div class="flex flex-wrap gap-2">
                                 {#each rule.allowedValues as value}

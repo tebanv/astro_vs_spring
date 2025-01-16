@@ -138,7 +138,7 @@
             </div>
 
             {#each conditionalNonNullInColumnsspecificRules as rule, index}
-                <div class="bg-zinc-700 p-3 rounded-md">
+                <div class="bg-zinc-600/50 p-3 rounded-md">
                     <div class="flex justify-between items-start">
                         <div>
                             <h3 class="text-white font-semibold mb-2">
@@ -146,7 +146,7 @@
                             </h3>
                             <div class="flex flex-wrap gap-2">
                                 {#each rule.columnsToValidate as column}
-                                    <span class="bg-zinc-600 text-white px-2 py-1 rounded-md">
+                                    <span class="bg-zinc-600/50 text-white px-2 py-1 rounded-md">
                                         {column}
                                     </span>
                                 {/each}

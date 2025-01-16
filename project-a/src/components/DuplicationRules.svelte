@@ -85,7 +85,7 @@
             {#if duplicationRules.length > 0}
                 <div class="space-y-2">
                     {#each duplicationRules as rule}
-                        <div class="flex items-center justify-between bg-zinc-700 p-2 rounded-md">
+                        <div class="flex items-center justify-between bg-zinc-600/50 p-2 rounded-md">
                             <span class="text-white">{rule}</span>
                             <button
                                 on:click={() => removeDuplicationRule(rule)}

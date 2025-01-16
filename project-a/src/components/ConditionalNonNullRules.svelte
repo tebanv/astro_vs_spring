@@ -147,7 +147,7 @@
             </div>
 
             {#each conditionalNonNullRules as rule, index}
-                <div class="bg-zinc-700 p-3 rounded-md">
+                <div class="bg-zinc-600/50 p-3 rounded-md">
                     <div class="flex justify-between items-start">
                         <div>
                             <h3 class="text-white font-semibold mb-2">
