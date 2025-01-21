@@ -70,7 +70,7 @@
             return updatedStore;
         });
     }
-    const tooltipContent = "El valor en la columna seleccionada debe tener un Minimo y Maximo numericos.";
+    const tooltipContent = "El valor en la columna seleccionada debe tener un Minimo y Maximo numéricos.";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">

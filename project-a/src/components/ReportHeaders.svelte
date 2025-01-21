@@ -67,7 +67,7 @@
                     disabled={!selectedHeader}
                     class="bg-green-500 text-white p-2 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <Plus />
+                    Agregar
                 </button>
             </div>
 

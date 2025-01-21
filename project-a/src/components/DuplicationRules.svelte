@@ -49,7 +49,7 @@
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <h2 class="text-lg font-bold text-black">4 Detección de duplicados</h2>
+            <h2 class="text-lg font-bold text-black">4 Detección de Duplicados</h2>
             <Tooltip content={tooltipContent} />
         </div>
         <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">

@@ -49,13 +49,13 @@
   const toggleExpand = () => {
     isExpanded = !isExpanded;
   };
-  const tooltipContent = "Se selecciona una columna y se compara con [ Igual a, Menor a o Mayor a ] otra columna de tipo fecha . Ejemplo= fecha de diagnóstico no puede ser posterior a fecha de intervención.";
+  const tooltipContent = "Se selecciona una columna y se compara con [ Igual a, Menor a o Mayor a ] otra columna de tipo fecha. Ejemplo= fecha de diagnóstico no puede ser posterior a fecha de intervención.";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-2">
-      <h2 class="text-lg font-bold text-black">11 Regla Comparación de fechas</h2>
+      <h2 class="text-lg font-bold text-black">11 Regla Comparación de Fechas</h2>
       <Tooltip content={tooltipContent} />
     </div>
     <button on:click={toggleExpand} class="text-black hover:text-blue-300 transition-colors">

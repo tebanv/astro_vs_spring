@@ -86,7 +86,7 @@
     function toggleExpand() {
         isExpanded = !isExpanded;
     }
-    const tooltipContent = "Se Aplica regla para validar palabras claves si una columna tiene un valor entre un rango. La regla es de: menor o igual a 5 m es Tipo1, Menor o igual a 15 m es Tipo 2, menor o igual a 20 metros es Tipo 3 y mayor a 20 m es Tipo 4.";
+    const tooltipContent = "Regla para validar palabras claves en una columna (Columna Tipo) si una columna (Columna de Rango)  tiene un valor entre un rango. Ejemplo= si el rango es [ Minimo= 1.5,  Maximo= 5.0 ] Palabra clave = Tipo1, si el rango es [ Minimo= 5.1,  Maximo= 15.0 ] Palabra clave = Tipo2, si el rango es [ Minimo= 15.0,  Maximo= 20.0 ] Palabra clave = Tipo3, si el rango es [ Minimo= 15.0,  Maximo= ] Palabra clave = Tipo4 ";
   </script>
   
   <div class="custom-green-div p-4 rounded-lg">

@@ -37,7 +37,7 @@
     function toggleExpand() {
         isExpanded = !isExpanded;
     }
-    const tooltipContent = "Este valor debe ser nulo";
+    const tooltipContent = "El valor en la columna seleccionada debe ser nulo.";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">

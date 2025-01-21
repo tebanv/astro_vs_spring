@@ -54,7 +54,7 @@
 <div class="custom-green-div p-4 rounded-lg">
     <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2">
-            <h2 class="text-lg font-bold text-black">11,1 Rango de Fechass</h2>
+            <h2 class="text-lg font-bold text-black">11,1 Rango de Fechas</h2>
             <Tooltip content={tooltipContent}>
                 <Info size={20} class="text-gray-600 cursor-help" />
             </Tooltip>
