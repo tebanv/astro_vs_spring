@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class DirectoriesNumbers {
-    private String columnNameNumber;
+public class DirectoriesCodes {
+    private String columnName;
+    private String dictionaryName;
+    private String columnNameInDictionary;
 }

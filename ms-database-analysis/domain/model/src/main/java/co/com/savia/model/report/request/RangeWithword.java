@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 public class RangeWithword {
     private double min;       // Valor mínimo del rango
-    private double max;       // Valor máximo del rango
+    private Double max;       // Valor máximo del rango
     private String type; // Tipo esperado en la columna correspondiente
 }

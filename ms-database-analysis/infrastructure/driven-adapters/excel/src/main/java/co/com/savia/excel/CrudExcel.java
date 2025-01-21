@@ -64,8 +64,9 @@ public class CrudExcel implements ExcelRepository {
                 Map<String, String> rowData = new HashMap<>();
                 for (int j = 0; j < headers.size(); j++) {
                     Cell cell = row.getCell(j);
-                    String cellValue = (cell != null) ? cell.toString().trim() : ""; // Manejar celdas vacías
-                    rowData.put(headers.get(j), cellValue);
+                    String value = getCellValueAsString(cell);
+                    //String cellValue = (cell != null) ? cell.toString().trim() : ""; // Manejar celdas vacías
+                    rowData.put(headers.get(j), value);
                 }
                 dictionary.add(rowData);
             }
@@ -210,5 +211,35 @@ public class CrudExcel implements ExcelRepository {
         return accumulate != 0;
     }
 
+    public static String getCellValueAsString(Cell cell) {
+        if (cell == null) {
+            return ""; // Retorna una cadena vacía si la celda está vacía
+        }
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue(); // Si es texto, retorna el valor como String
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    // Si es una fecha, formatearla como texto (opcional)
+                    return cell.getDateCellValue().toString();
+                } else {
+                    // Si es numérico, formatearlo como entero si no tiene decimales
+                    double numericValue = cell.getNumericCellValue();
+                    if (numericValue == Math.floor(numericValue)) {
+                        return String.valueOf((long) numericValue); // Convierte a entero sin decimales
+                    } else {
+                        return String.valueOf(numericValue); // Retorna el valor tal cual si tiene decimales
+                    }
+                }
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue()); // Si es booleano, retorna como texto
+            case FORMULA:
+                return cell.getCellFormula(); // Si es fórmula, retorna la fórmula como texto
+            case BLANK:
+                return ""; // Si está en blanco, retorna una cadena vacía
+            default:
+                return ""; // Para otros casos no manejados
+        }
+    }
 
 }

@@ -1,24 +1,37 @@
 logging:
   level:
     org:
-      apache:
-        poi:
-          openxml4j:
-            opc:
-              OPCPackage: ERROR
+      springframework:
+        security: INFO
+  #pattern:
+    #console: "[%-5level] %d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 server:
   port: 8085
 spring:
+  datasource:
+    url: jdbc:h2:mem:reportdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: "sa"
+    password: "password"
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: true
+      path: "/h2-console"
   application:
     name: "ms-database-analysis"
   devtools:
     add-properties: false
   profiles:
-    include: null
+    include: local
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: "10MB"
+      max-request-size: "10MB"
+      location: "${temp.file.directory}"
   security:
     oauth2:
       resourceserver:
@@ -37,14 +50,23 @@ management:
 jwt:
   json-exp-roles: "/roles"
 cors:
-  allowed-origins: "http://localhost:4200,http://localhost:8085, /**/"
+  #allowed-origins: "http://localhost:4200,http://localhost:8085, **/**/"
+  allowed-origins: "*"
 general:
   file-type-report-generated: ".xlsx"
   sheet-name: "Errores"
+  prefix-name: "Errors-"
+  file-path-report-generated: "C:\\Projects\\GitHub\\Savia\\"
+  file-path-dictionaries: "C:\\Projects\\GitHub\\Savia\\databases"
 headers:
-  categoriesRules: No Nulos,Nulos,Tipo-variable,Tamaño,Minimos y Maximos, \
-    Campos Duplicados,Diccionario,Comparacion-entre-columnas,Comparacion-Fechas, \
-    orderColumnsRules,rangeWithWordRules,dateRangeRules,specificValuesRules,conditionalNonNullRule
-routes:
-  dictionary-common-names: "C:\\Projects\\GitHub\\Savia\\databases\\BD NOMBRES CIENTIFICOS CORREGIDA 2024 (completa).xlsx"
-  file-path-report-generated: "C:\\Projects\\GitHub\\Savia\\Errors-"
+  categoriesRules: "1 Detección de nulidad, 1.1 Detección de no nulidad, 2 Tipo-variable, 3 Tamaño del Campo, 4 Campos Duplicados, \
+    \ 5 Diccionario por Nombres, 5.1 Diccionario por Habitos, 5.2 Diccionario por Codigos, 6 Rango con palabra clave, 7 Comparacion entre columnas, \
+    \ 8 Minimos y Maximos, 9 Condicional de campos no nulos con valor numerico, 10 Orden de Columnas,\
+    \ 11 Comparacion entre Fechas, 11.1 Rango de fechas, 12 Valores Especificos, 13 Conteo valores no nulos"
+temp:
+  file:
+    prefix: "undertow"
+    directory: "${java.io.tmpdir}/my-app-temp"
+    max-age: 1800
+    cleanup:
+      interval: 3600000

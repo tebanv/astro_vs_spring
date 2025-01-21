@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -34,6 +35,8 @@ public class AnalyzeDatabaseUseCase {
 
     public Mono<ReportResponse> analyzeDatabaseWithRules(List<Map<String, String>> records, ValidationRules rules,
                                                          String fileName) {
+
+
         if (!records.isEmpty() && !Objects.isNull(rules)) {
 
             String reportId = UUID.randomUUID().toString();
@@ -62,22 +65,18 @@ public class AnalyzeDatabaseUseCase {
     private void analyzeDataBaseAndUpdateStatusReport(List<Map<String, String>> records, ValidationRules rules,
                                                       String fileName, String reportId, ReportModel reportModel) {
 
-        log.info("Se empieza a validar cada registro...");
-        Mono.just(reportId)
-                .doOnNext(id -> {
-                    Mono.fromRunnable(() -> {
-                                validateRecordsAndGenerateErrorFile(records, rules, fileName, reportModel);
-                            }).subscribeOn(Schedulers.boundedElastic())
-                            .subscribe();
-                })
-                .subscribe();
+        log.info("Se empieza a validar cada registro con el report id: {}", reportId);
+        Mono.fromRunnable(() -> {
+            validateRecordsAndGenerateErrorFile(records, rules, reportModel, fileName, reportId);
+        }).subscribeOn(Schedulers.boundedElastic()).subscribe();
+
     }
 
     private void validateRecordsAndGenerateErrorFile(List<Map<String, String>> records, ValidationRules rules,
-                                                     String fileName, ReportModel reportModel) {
+                                                     ReportModel reportModel, String fileName , String reportId) {
 
         List<String[]> errorRows = validateRecords(records, rules);
-        log.info("Se Validaron los registros correctamente...");
+        log.info("Se Validaron los registros correctamente con el report id: {}", reportId);
 
         String errorFileName = Objects.requireNonNull(environment.getProperty("general.prefix-name"))
                 .concat(fileName)
@@ -92,7 +91,8 @@ public class AnalyzeDatabaseUseCase {
             File errorFile = new File(errorFilePath);
 
             if (errorFile.exists()) {
-                log.info("Se generó un archivo de errores en la ruta: {}", errorFilePath);
+                log.info("Se generó un archivo para reportId: {}, de errores en la ruta: {}", reportId,
+                        errorFilePath);
                 reportModel.setStatus("COMPLETADO");
                 reportModel.setResultFilePath(errorFilePath);
                 reportModel.setFileName(errorFileName);
@@ -140,6 +140,7 @@ public class AnalyzeDatabaseUseCase {
             List<String> duplicationErrors = new ArrayList<>();
             List<String> dictionaryByNameErrors = new ArrayList<>();
             List<String> dictionariesHabitsErrors = new ArrayList<>();
+            List<String> dictionariesCodesErrors = new ArrayList<>();
             List<String> rangeWithWordErrors = new ArrayList<>();
             List<String> comparisonBetweenColumnsErrors = new ArrayList<>();
             List<String> minMaxErrors = new ArrayList<>();
@@ -151,40 +152,62 @@ public class AnalyzeDatabaseUseCase {
             List<String> conditionalNonNullErrors = new ArrayList<>();
 
             //1 Validar campos No Nulos
-            Util.validateFieldsNotNull(record, rules.getRules().getCategories().getNotNullRules(), notNullErrors);
+            CompletableFuture<Void> notNullFuture = validateFieldsNotNull(rules, record, notNullErrors);
             // 1,1 Validar campos Nulos
-            Util.validateFieldsNull(record, rules.getRules().getCategories().getNullRules(), nullErrors);
+            CompletableFuture<Void> nullFuture = validateFieldsdNulls(rules, record, nullErrors);
             // 2 Validar Tipo de Variables
-            Util.validateVariableType(record, rules.getRules().getCategories().getVariableTypeRules(), variableTypeErrors);
+            CompletableFuture<Void> variableTypeFuture = validateVariableType(rules, record, variableTypeErrors);
             //3 Validar Tamaños o Longitudes del campo
-            Util.validateSize(record, rules.getRules().getCategories().getSizeRules(), sizeErrors);
+            CompletableFuture<Void>  validateSizeFuture = validateSize(rules, record, sizeErrors);
             //4 Validar duplicaciones
-            Util.validateDuplications(record, records, rules.getRules().getCategories().getDuplicationRules(), duplicationErrors);
+            CompletableFuture<Void>  validateDuplicationsFuture = validateDuplications(records, rules, record, duplicationErrors);
             // 5 Validar dictionary por nombre
-            validateDictionaryEntries(record, rules.getRules().getDictionaries().getNames(), dictionaryByNameErrors);
-            // 5,1 Validar dictionary Validation
-            validateHabits(record, rules.getRules().getDictionaries().getHabits(), dictionariesHabitsErrors);
+            CompletableFuture<Void>  validateDictionaryEntriesFuture = validateDictionaryEntries(record, rules.getRules().getDictionaries().getNames(), dictionaryByNameErrors);
+            // 5,1 Validar dictionary por habito
+            CompletableFuture<Void>  validateDictionaryHabitsFuture = validateHabits(record, rules.getRules().getDictionaries().getHabits(), dictionariesHabitsErrors);
+            // 5,2 Validar dictionary por Codigo
+            CompletableFuture<Void>  validateDictionaryCodesFuture = validateCodeEntries(record, rules.getRules().getDictionaries().getCodes(), dictionariesCodesErrors);
             // 6 Validar rango con palabra
-            Util.validateRangeWithWord(record, rules.getRules().getCategories().getRangeWithWordRules(), rangeWithWordErrors);
+            CompletableFuture<Void>  validateRangeWithWordFuture = validateRangeWithWord(rules, record, rangeWithWordErrors);
             // 7 Validar comparaciones entre columnas
-            Util.validateComparisonsBetweenColumns(record, rules.getRules().getCategories().getComparisonsWithOtherColumnRules(), comparisonBetweenColumnsErrors);
+            CompletableFuture<Void>  validateComparisonsBetweenColumnsFuture = validateComparisonsBetweenColumns(rules, record, comparisonBetweenColumnsErrors);
             // 8 Validar mínimos y máximos
-            Util.validateMinMax(record, rules.getRules().getCategories().getMinimumAndMaximumRules(), minMaxErrors);
+            CompletableFuture<Void>  validateMinAndMaxFuture = validateMinAndMax(rules, record, minMaxErrors);
             // 9 Validar condicionales not null en columnas
-            Util.validateConditionalNonNullInColumns(record,
-                        rules.getRules().getCategories().getConditionalNonNullInColumnsspecificRules(),
-                        conditionalNonNullInColumnsErrors);
+            CompletableFuture<Void>  validateConditionalNonNullInColumnsFuture = validateConditionalNonNullInColumns(rules, record, conditionalNonNullInColumnsErrors);
             // 10 Validar Orden de Columnas
-            Util.validateColumnOrder(record, rules.getRules().getCategories().getOrderColumnsRules(), orderColumnsErrors);
+            CompletableFuture<Void>  validateColumnOrderFuture = validateColumnOrder(rules, record, orderColumnsErrors);
             // 11 Validar Comparaciones de Fechas
-            Util.validateDateComparisons(record, rules.getRules().getCategories().getComparisonsWithDateRules(), comparisonsWithDateErrors);
+            CompletableFuture<Void>  validateDateComparisonsFuture = validateDateComparisons(rules, record, comparisonsWithDateErrors);
             // 11,1 Validar Rangos entre Fechas
-            Util.validateDatesInRange(record, rules.getRules().getCategories().getDateRangeRules(), datesRangeErrors);
+            CompletableFuture<Void>  validateDatesInRangeFuture = validateDatesInRange(rules, record, datesRangeErrors);
             // 12 Validar el valor de campos especificos
-            Util.validateSpecificValues(record, rules.getRules().getCategories().getSpecificValuesRules(), specificValuesErrors);
+            CompletableFuture<Void>  validateSpecificValuesFuture = validateSpecificValues(rules, record, specificValuesErrors);
             // 13 Validar condicionales not null
-            Util.validateConditionalNonNull(record, rules.getRules().getCategories().getConditionalNonNullRules(), conditionalNonNullErrors);
+            CompletableFuture<Void>  validateConditionalNonNullFuture = validateConditionalNonNull(rules, record, conditionalNonNullErrors);
 
+            CompletableFuture<Void> allValidations = CompletableFuture.allOf(
+                    notNullFuture,
+                    nullFuture,
+                    variableTypeFuture,
+                    validateSizeFuture,
+                    validateDuplicationsFuture,
+                    validateDictionaryEntriesFuture,
+                    validateDictionaryHabitsFuture,
+                    validateDictionaryCodesFuture,
+                    validateRangeWithWordFuture,
+                    validateComparisonsBetweenColumnsFuture,
+                    validateMinAndMaxFuture,
+                    validateConditionalNonNullInColumnsFuture,
+                    validateColumnOrderFuture,
+                    validateDateComparisonsFuture,
+                    validateDatesInRangeFuture,
+                    validateSpecificValuesFuture,
+                    validateConditionalNonNullFuture
+            );
+            allValidations.join(); // Bloquea hasta que todas las validaciones terminen
+
+            allValidations.thenRun(() -> {
             // Agregar los errores a las columnas correspondientes
             errorRow[errorColumnStartIndex] = String.join("; ", notNullErrors); // 1 No Nulos
             errorRow[errorColumnStartIndex + 1] = String.join("; ", nullErrors); // 1,1 Nulos
@@ -192,23 +215,115 @@ public class AnalyzeDatabaseUseCase {
             errorRow[errorColumnStartIndex + 3] = String.join("; ", sizeErrors);  // 3 Tamaño
             errorRow[errorColumnStartIndex + 4] = String.join("; ", duplicationErrors); // 4 Duplicación
             errorRow[errorColumnStartIndex + 5] = String.join("; ", dictionaryByNameErrors); // 5 Diccionario por nombre
-            errorRow[errorColumnStartIndex + 6] = String.join("; ", dictionariesHabitsErrors); // 5,1 Diccionario por nombre
-            errorRow[errorColumnStartIndex + 7] = String.join("; ", rangeWithWordErrors); // 6 Rango con palabra
-            errorRow[errorColumnStartIndex + 8] = String.join("; ", comparisonBetweenColumnsErrors); // 7 Comparación entre columnas
-            errorRow[errorColumnStartIndex + 9] = String.join("; ", minMaxErrors); // 8 MinMax
-            errorRow[errorColumnStartIndex + 10] = String.join("; ", conditionalNonNullInColumnsErrors); // 9 Condionalidad de no nulos con valor numerico
-            errorRow[errorColumnStartIndex + 11] = String.join("; ", orderColumnsErrors); // 10 Orden de columnas
-            errorRow[errorColumnStartIndex + 12] = String.join("; ", comparisonsWithDateErrors); // 11 Comparación entre fechas
-            errorRow[errorColumnStartIndex + 13] = String.join("; ", datesRangeErrors); // 11,1 Rangos entre Fechas
-            errorRow[errorColumnStartIndex + 14] = String.join("; ", specificValuesErrors); // 12 valor de campos especificos
-            errorRow[errorColumnStartIndex + 15] = String.join("; ", conditionalNonNullErrors); // 13 condicionales not null
+            errorRow[errorColumnStartIndex + 6] = String.join("; ", dictionariesHabitsErrors); // 5,1 Diccionario por Habitos
+            errorRow[errorColumnStartIndex + 7] = String.join("; ", dictionariesCodesErrors); // 5,2 Diccionario por Codigos
+            errorRow[errorColumnStartIndex + 8] = String.join("; ", rangeWithWordErrors); // 6 Rango con palabra
+            errorRow[errorColumnStartIndex + 9] = String.join("; ", comparisonBetweenColumnsErrors); // 7 Comparación entre columnas
+            errorRow[errorColumnStartIndex + 10] = String.join("; ", minMaxErrors); // 8 MinMax
+            errorRow[errorColumnStartIndex + 11] = String.join("; ", conditionalNonNullInColumnsErrors); // 9 Condionalidad de no nulos con valor numerico
+            errorRow[errorColumnStartIndex + 12] = String.join("; ", orderColumnsErrors); // 10 Orden de columnas
+            errorRow[errorColumnStartIndex + 13] = String.join("; ", comparisonsWithDateErrors); // 11 Comparación entre fechas
+            errorRow[errorColumnStartIndex + 14] = String.join("; ", datesRangeErrors); // 11,1 Rangos entre Fechas
+            errorRow[errorColumnStartIndex + 15] = String.join("; ", specificValuesErrors); // 12 valor de campos especificos
+            errorRow[errorColumnStartIndex + 16] = String.join("; ", conditionalNonNullErrors); // 13 condicionales not null
 
             // Añadir la fila con errores a la lista de errores
             errorRows.add(errorRow);
+            });
         }
 
         return errorRows;
     }
+
+    public CompletableFuture<Void> validateConditionalNonNull(ValidationRules rules, Map<String, String> record, List<String> conditionalNonNullErrors) {
+        return CompletableFuture.runAsync(() -> {
+            Util.validateConditionalNonNull(record, rules.getRules().getCategories().getConditionalNonNullRules(), conditionalNonNullErrors);
+        });
+    }
+
+    public CompletableFuture<Void> validateSpecificValues(ValidationRules rules, Map<String, String> record, List<String> specificValuesErrors) {
+        return CompletableFuture.runAsync(() -> {
+            Util.validateSpecificValues(record, rules.getRules().getCategories().getSpecificValuesRules(), specificValuesErrors);
+        });
+    }
+
+    public CompletableFuture<Void> validateDatesInRange(ValidationRules rules, Map<String, String> record, List<String> datesRangeErrors) {
+        return CompletableFuture.runAsync(() -> {
+            Util.validateDatesInRange(record, rules.getRules().getCategories().getDateRangeRules(), datesRangeErrors);
+        });
+    }
+
+    public CompletableFuture<Void> validateDateComparisons(ValidationRules rules, Map<String, String> record, List<String> comparisonsWithDateErrors) {
+        return CompletableFuture.runAsync(() -> {
+            Util.validateDateComparisons(record, rules.getRules().getCategories().getComparisonsWithDateRules(), comparisonsWithDateErrors);
+        });
+    }
+
+    public CompletableFuture<Void> validateColumnOrder(ValidationRules rules, Map<String, String> record, List<String> orderColumnsErrors) {
+        return CompletableFuture.runAsync(() -> {
+            Util.validateColumnOrder(record, rules.getRules().getCategories().getOrderColumnsRules(), orderColumnsErrors);
+        });
+    }
+
+    public CompletableFuture<Void> validateConditionalNonNullInColumns(ValidationRules rules, Map<String, String> record, List<String> conditionalNonNullInColumnsErrors) {
+        return CompletableFuture.runAsync(() -> {
+            Util.validateConditionalNonNullInColumns(record,
+                    rules.getRules().getCategories().getConditionalNonNullInColumnsspecificRules(),
+                    conditionalNonNullInColumnsErrors);
+        });
+    }
+
+    public CompletableFuture<Void> validateMinAndMax(ValidationRules rules, Map<String, String> record, List<String> minMaxErrors) {
+        return CompletableFuture.runAsync(() -> {
+            Util.validateMinMax(record, rules.getRules().getCategories().getMinimumAndMaximumRules(), minMaxErrors);
+        });
+    }
+
+    public CompletableFuture<Void> validateComparisonsBetweenColumns(ValidationRules rules, Map<String, String> record, List<String> comparisonBetweenColumnsErrors) {
+        return CompletableFuture.runAsync(() -> {
+            Util.validateComparisonsBetweenColumns(record, rules.getRules().getCategories().getComparisonsWithOtherColumnRules(), comparisonBetweenColumnsErrors);
+        });
+    }
+
+    public CompletableFuture<Void> validateRangeWithWord(ValidationRules rules, Map<String, String> record, List<String> rangeWithWordErrors) {
+        return CompletableFuture.runAsync(() -> {
+            Util.validateRangeWithWord(record, rules.getRules().getCategories().getRangeWithWordRules(), rangeWithWordErrors);
+        });
+    }
+
+    public CompletableFuture<Void> validateDuplications(List<Map<String, String>> records, ValidationRules rules, Map<String, String> record, List<String> duplicationErrors) {
+        return CompletableFuture.runAsync(() -> {
+            Util.validateDuplications(record, records, rules.getRules().getCategories().getDuplicationRules(), duplicationErrors);
+        });
+    }
+
+    public CompletableFuture<Void>  validateSize(ValidationRules rules, Map<String, String> record, List<String> sizeErrors) {
+
+        return CompletableFuture.runAsync(() -> {
+        Util.validateSize(record, rules.getRules().getCategories().getSizeRules(), sizeErrors);
+        });
+    }
+
+    public CompletableFuture<Void>  validateVariableType(ValidationRules rules, Map<String, String> record, List<String> variableTypeErrors) {
+        return CompletableFuture.runAsync(() -> {
+        Util.validateVariableType(record, rules.getRules().getCategories().getVariableTypeRules(), variableTypeErrors);
+        });
+    }
+
+    public CompletableFuture<Void> validateFieldsdNulls(ValidationRules rules, Map<String, String> record, List<String> nullErrors) {
+
+        return CompletableFuture.runAsync(() -> {
+        Util.validateFieldsNull(record, rules.getRules().getCategories().getNullRules(), nullErrors);
+        });
+    }
+
+    public CompletableFuture<Void> validateFieldsNotNull(ValidationRules rules, Map<String, String> record, 
+                                                         List<String> notNullErrors) {
+        return CompletableFuture.runAsync(() -> {
+        Util.validateFieldsNotNull(record, rules.getRules().getCategories().getNotNullRules(), notNullErrors);
+        });
+    }
+
 
     // Consultar estado del reporte de errores
     public Mono<ReportModel> getReportStatus(String reportId) {
@@ -247,8 +362,11 @@ public class AnalyzeDatabaseUseCase {
     }
 
     // Validar diccionarios
-    public void validateDictionaryEntries(Map<String, String> record, List<DirectoriesNames> dictionaries, List<String> errors) {
-        // Si el arreglo de diccionarios está vacío, no hacer nada
+    public CompletableFuture<Void> validateDictionaryEntries(Map<String, String> record, List<DirectoriesNames> dictionaries, List<String> errors) {
+
+        return CompletableFuture.runAsync(() -> {
+            // Si el arreglo de diccionarios está vacío, no hacer nada
+
         if (dictionaries == null || dictionaries.isEmpty()) {
             return;
         }
@@ -261,7 +379,7 @@ public class AnalyzeDatabaseUseCase {
 
             // Validar si el valor está vacío
             if (fieldValue == null || fieldValue.trim().isEmpty()) {
-                errors.add("El campo " + columnName + " está vacío.");
+                errors.add("El campo " + columnName + " esta vacio.");
                 continue;
             }
 
@@ -271,7 +389,7 @@ public class AnalyzeDatabaseUseCase {
 
                 // Validar si el diccionario está vacío
                 if (dictionaryEntries == null || dictionaryEntries.isEmpty()) {
-                    log.warn("El diccionario {} no se pudo cargar o está vacío.", dictionaryName);
+                    log.warn("El diccionario {} no se pudo cargar o esta vacio.", dictionaryName);
                     continue;
                 }
 
@@ -306,7 +424,138 @@ public class AnalyzeDatabaseUseCase {
                 errors.add("Error al validar el campo " + columnName + " con el diccionario " + dictionaryName + ".");
             }
         }
+        });
     }
+    public CompletableFuture<Void> validateHabits(Map<String, String> record, List<DirectoriesHabits> directoriesHabits, List<String> errors) {
+
+        return CompletableFuture.runAsync(() -> {
+            if (directoriesHabits == null || directoriesHabits.isEmpty()) {
+                return;
+            }
+
+            for (DirectoriesHabits habitRule : directoriesHabits) {
+                String columnNameHabit = habitRule.getColumnNameHabit();
+                String columnNameToCompare = habitRule.getColumnNameToCompare();
+                String dictionaryName = habitRule.getDictionaryName();
+                String columnNameInDictionary = habitRule.getColumnNameInDictionary();
+                List<Habits> habits = habitRule.getHabits();
+
+                String habitValue = record.get(columnNameHabit);
+                String compareValueStr = record.get(columnNameToCompare);
+
+                // Validar si el valor del hábito está vacío
+                if (habitValue == null || habitValue.trim().isEmpty()) {
+                    errors.add("El campo " + columnNameHabit + " esta vacio.");
+                    continue;
+                }
+
+                try {
+                    // Obtener el diccionario cargado
+                    List<Map<String, String>> dictionaryEntries = excelRepository.getDictionary(dictionaryName);
+
+                    // Validar si el diccionario está vacío
+                    if (dictionaryEntries == null || dictionaryEntries.isEmpty()) {
+                        log.warn("El diccionario {} no se pudo cargar o esta vacio.", dictionaryName);
+                        continue;
+                    }
+
+                    // Validar si el valor del hábito no está en el diccionario
+                    boolean found = dictionaryEntries.stream()
+                            .anyMatch(entry -> {
+                                String dictionaryValue = entry.get(columnNameInDictionary);
+
+                                List<String> dictionaryTerms = Arrays.stream(dictionaryValue.split(","))
+                                        .map(String::trim)
+                                        .map(this::normalizeScientificName)
+                                        .toList();
+
+                                String normalizedHabitValue = normalizeScientificName(habitValue);
+                                return dictionaryTerms.contains(normalizedHabitValue) ||
+                                        dictionaryValue.toLowerCase().contains(normalizedHabitValue.toLowerCase());
+                            });
+
+                    if (!found) {
+                        errors.add("El valor '" + habitValue + "' en el campo '" + columnNameHabit +
+                                "' no se encuentra en el diccionario '" + dictionaryName +
+                                "' en la columna '" + columnNameInDictionary + "'.");
+                        continue;
+                    }
+
+                    // Validar la comparación de valores para el hábito
+                    Optional<Habits> matchingHabit = habits.stream()
+                            .filter(h -> h.getHabit().equalsIgnoreCase(habitValue))
+                            .findFirst();
+
+                    if (matchingHabit.isPresent()) {
+                        Habits habit = matchingHabit.get();
+                        double maxValue = Double.parseDouble(habit.getValue());
+
+                        try {
+                            double compareValue = Double.parseDouble(compareValueStr);
+                            if (compareValue > maxValue) {
+                                errors.add("El valor '" + compareValue + "' en la columna '" + columnNameToCompare +
+                                        "' para el habito '" + habitValue +
+                                        "' excede el límite permitido de '" + maxValue + "'.");
+                            }
+                        } catch (NumberFormatException e) {
+                            errors.add("El valor '" + compareValueStr + "' en la columna '" + columnNameToCompare +
+                                    "' no es un numero valido.");
+                        }
+                    }
+
+                } catch (Exception e) {
+                    log.error("Error al cargar o validar el diccionario {}: {}", dictionaryName, e.getMessage());
+                    errors.add("Error al validar el campo " + columnNameHabit + " con el diccionario " + dictionaryName + ".");
+                }
+            }
+        });
+    }
+    private CompletableFuture<Void> validateCodeEntries(Map<String, String> record, List<DirectoriesCodes> codeRules, List<String> errors) {
+
+        return CompletableFuture.runAsync(() -> {
+            if (codeRules == null || codeRules.isEmpty()) {
+                return;
+            }
+
+            for (DirectoriesCodes codeRule : codeRules) {
+                String columnName = codeRule.getColumnName();
+                String dictionaryName = codeRule.getDictionaryName();
+                String codeColumn = codeRule.getColumnNameInDictionary();
+                String fieldValue = record.get(columnName);
+
+                if (fieldValue == null || fieldValue.trim().isEmpty()) {
+                    errors.add("El campo " + columnName + " esta vacio.");
+                    continue;
+                }
+
+                try {
+                    List<Map<String, String>> dictionaryEntries = excelRepository.getDictionary(dictionaryName);
+
+                    if (dictionaryEntries == null || dictionaryEntries.isEmpty()) {
+                        log.warn("El diccionario de codigos {} no se pudo cargar o esta vacio.", dictionaryName);
+                        continue;
+                    }
+
+                    boolean found = dictionaryEntries.stream()
+                            .anyMatch(entry -> {
+                                String code = entry.get(codeColumn);
+
+                                return fieldValue.equals(code);
+                            });
+
+                    if (!found) {
+                        errors.add("El valor '" + fieldValue + "' en el campo '" + columnName +
+                                "' no se encuentra en el diccionario de codigos '" + dictionaryName + "'.");
+                    }
+
+                } catch (Exception e) {
+                    log.error("Error al cargar o validar el diccionario de codigos {}: {}", dictionaryName, e.getMessage());
+                    errors.add("Error al validar el campo " + columnName + " con el diccionario de codigos " + dictionaryName + ".");
+                }
+            }
+        });
+    }
+
     private String normalizeScientificName(String value) {
         if (value == null) {
             return "";
@@ -318,88 +567,6 @@ public class AnalyzeDatabaseUseCase {
         return value;
     }
 
-
-    public void validateHabits(Map<String, String> record, List<DirectoriesHabits> directoriesHabits, List<String> errors) {
-        if (directoriesHabits == null || directoriesHabits.isEmpty()) {
-            return;
-        }
-
-        for (DirectoriesHabits habitRule : directoriesHabits) {
-            String columnNameHabit = habitRule.getColumnNameHabit();
-            String columnNameToCompare = habitRule.getColumnNameToCompare();
-            String dictionaryName = habitRule.getDictionaryName();
-            String columnNameInDictionary = habitRule.getColumnNameInDictionary();
-            List<Habits> habits = habitRule.getHabits();
-
-            String habitValue = record.get(columnNameHabit);
-            String compareValueStr = record.get(columnNameToCompare);
-
-            // Validar si el valor del hábito está vacío
-            if (habitValue == null || habitValue.trim().isEmpty()) {
-                errors.add("El campo " + columnNameHabit + " está vacío.");
-                continue;
-            }
-
-            try {
-                // Obtener el diccionario cargado
-                List<Map<String, String>> dictionaryEntries = excelRepository.getDictionary(dictionaryName);
-
-                // Validar si el diccionario está vacío
-                if (dictionaryEntries == null || dictionaryEntries.isEmpty()) {
-                    log.warn("El diccionario {} no se pudo cargar o está vacío.", dictionaryName);
-                    continue;
-                }
-
-                // Validar si el valor del hábito no está en el diccionario
-                boolean found = dictionaryEntries.stream()
-                        .anyMatch(entry -> {
-                            String dictionaryValue = entry.get(columnNameInDictionary);
-
-                            List<String> dictionaryTerms = Arrays.stream(dictionaryValue.split(","))
-                                    .map(String::trim)
-                                    .map(this::normalizeScientificName)
-                                    .toList();
-
-                            String normalizedHabitValue = normalizeScientificName(habitValue);
-                            return dictionaryTerms.contains(normalizedHabitValue) ||
-                                    dictionaryValue.toLowerCase().contains(normalizedHabitValue.toLowerCase());
-                        });
-
-                if (!found) {
-                    errors.add("El valor '" + habitValue + "' en el campo '" + columnNameHabit +
-                            "' no se encuentra en el diccionario '" + dictionaryName +
-                            "' en la columna '" + columnNameInDictionary + "'.");
-                    continue;
-                }
-
-                // Validar la comparación de valores para el hábito
-                Optional<Habits> matchingHabit = habits.stream()
-                        .filter(h -> h.getHabit().equalsIgnoreCase(habitValue))
-                        .findFirst();
-
-                if (matchingHabit.isPresent()) {
-                    Habits habit = matchingHabit.get();
-                    double maxValue = Double.parseDouble(habit.getValue());
-
-                    try {
-                        double compareValue = Double.parseDouble(compareValueStr);
-                        if (compareValue > maxValue) {
-                            errors.add("El valor '" + compareValue + "' en la columna '" + columnNameToCompare +
-                                    "' para el hábito '" + habitValue +
-                                    "' excede el límite permitido de '" + maxValue + "'.");
-                        }
-                    } catch (NumberFormatException e) {
-                        errors.add("El valor '" + compareValueStr + "' en la columna '" + columnNameToCompare +
-                                "' no es un número válido.");
-                    }
-                }
-
-            } catch (Exception e) {
-                log.error("Error al cargar o validar el diccionario {}: {}", dictionaryName, e.getMessage());
-                errors.add("Error al validar el campo " + columnNameHabit + " con el diccionario " + dictionaryName + ".");
-            }
-        }
-    }
 
 
 }

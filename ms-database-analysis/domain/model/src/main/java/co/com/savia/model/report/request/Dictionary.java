@@ -14,7 +14,8 @@ import java.util.List;
 public class Dictionary {
 
     List<DirectoriesNames> names;
-    List<DirectoriesNumbers> numbers;
+    List<DirectoriesCodes> codes;
+    List<DirectoriesCodes> numbers;
     List<DirectoriesHabits> habits;
 
 }
