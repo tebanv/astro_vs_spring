@@ -31,7 +31,7 @@
 
 # ---- FRONTEND (Node, Bun, Astro) ----
 # Node modules and dependencies
-/node_modules/
+front/project-a/node_modules/
 /.pnp/
 /.pnp.js
 
