@@ -1,0 +1,67 @@
+---
+import Layout from "../layouts/Layout.astro";
+import RoleBasedContent from "../components/RoleBasedContent.svelte";
+import UploadButton from "../components/UploadButton.svelte";
+import HeadersList from "../components/HeadersList.svelte";
+import CategoriesContainer from "../components/CategoriesContainer.svelte";
+import GenerateJsonButton from "../components/GenerateJsonButton.svelte";
+import SaveLoadState from "../components/SaveLoadState.svelte";
+import AnalyzeButton from "../components/AnalyzeButton.svelte";
+import ReportHeaders from "../components/ReportHeaders.svelte";
+// import { redirect } from 'astro/navigation';
+
+// export async function getServerSideProps({ request, cookies }) {
+//   const token = localStorage.getItem('token');
+
+//   if (!token) {
+//     return redirect('/login');
+//   }
+
+//   return {
+//     props: {
+//         currentPath: Astro.url.pathname,
+        
+//     },
+//   };
+// }
+
+const { currentPath } = Astro.props; // Obtener currentPath de los props
+---
+<Layout title="Project-a" currentPath={currentPath}>
+  <div class="grid-area-main h-full flex flex-col gap-4 p-4 ">
+    <!-- Área de cabeceras -->
+    <div id="container" class="bg-zinc-200 p-4 rounded-lg backdrop-blur-sm overflow-y-auto flex-shrink-0">
+      <div class="space-y-4">
+        <div class="rounded p-2">
+          <UploadButton client:load />
+        </div>   
+        
+        <div class="bg-zinc-200 rounded p-2">
+          <HeadersList client:load />
+        </div>
+      </div>
+    </div>
+    
+    <!-- Área de categorías -->
+    <div class="backdrop-blur-sm overflow-y-auto flex-grow">
+      <CategoriesContainer client:load />
+    </div>
+
+    <div>
+      <ReportHeaders client:load />
+    </div>
+  
+    <!-- Botón para guardar y cargar estado de la app -->
+    
+    <div>
+      <SaveLoadState client:load />
+    </div>
+            
+    <div>
+      <AnalyzeButton client:load />
+    </div>
+
+  </div>
+</Layout>
+
+

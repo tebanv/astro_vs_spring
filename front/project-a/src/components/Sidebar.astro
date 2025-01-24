@@ -1,0 +1,37 @@
+---
+const categories = [
+  { name: 'Reglas Nulas', id: 'null-rules' },
+  { name: 'Reglas No Nulas', id: 'not-null-rules' },
+  { name: 'Tipos de Variables', id: 'variable-type-rules' },
+  { name: 'Reglas de Tamaño', id: 'size-rules' },
+  { name: 'Mínimos y Máximos', id: 'min-max-rules' },
+  { name: 'Reglas de Duplicación', id: 'duplication-rules' },
+  { name: 'Comparaciones entre Columnas', id: 'column-comparison-rules' },
+  { name: 'Comparaciones con Fechas', id: 'date-comparison-rules' },
+  { name: 'Orden de Columnas', id: 'column-order-rules' },
+  { name: 'Rangos con Palabras', id: 'range-with-word-rules' },
+  { name: 'Rangos de Fechas', id: 'date-range-rules' },
+  { name: 'Valores Específicos', id: 'specific-value-rules' },
+  { name: 'Reglas Condicionales No Nulas', id: 'conditional-non-null-rules' },
+  { name: 'Diccionarios', id: 'dictionaries' },
+  { name: 'Reporte', id: 'report' },
+];
+---
+
+<aside class="bg-green-800 text-white w-64 space-y-6 py-7 px-2 absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 transition duration-200 ease-in-out">
+  <nav>
+    <ul class="space-y-2">
+      {categories.map((category) => (
+        <li>
+          <a
+            href={`#${category.id}`}
+            class="block py-2.5 px-4 rounded transition duration-200 hover:bg-green-700 hover:text-white"
+          >
+            {category.name}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</aside>
+

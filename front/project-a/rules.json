@@ -1,0 +1,197 @@
+{
+    "rules": {
+        "categories": {
+            "nullRules": [
+                "otro_valor"
+            ],
+            "notNullRules": [
+                "_record_id",
+                "_status",
+                "_title",
+                "municipio",
+                "barrio",
+                "nombre_c_2"
+            ],
+            "variableTypeRules": [
+                {
+                    "name": "alt_to_c3",
+                    "type": "numeric"
+                },
+                {
+                    "name": "tallos_c3",
+                    "type": "numeric"
+                },
+                {
+                    "name": "id",
+                    "type": "string"
+                },
+                {
+                    "name": "nombre_planta",
+                    "type": "string"
+                },
+                {
+                    "name": "_record_id",
+                    "type": "uuid"
+                },
+                {
+                    "name": "column4",
+                    "type": "binary"
+                },
+                {
+                    "name": "column5",
+                    "type": "boolean"
+                },
+                {
+                    "name": "column6",
+                    "type": "yes_no"
+                }
+            ],
+            "sizeRules": [
+                {
+                    "name": "_title",
+                    "size": 100
+                },
+                {
+                    "name": "nombre_c_2",
+                    "size": 200
+                },
+                {
+                    "name": "_record_id",
+                    "size": 48
+                }
+            ],
+            "minimumAndMaximumRules": [
+                {
+                    "name": "alt_to_c3",
+                    "minValue": 1.5,
+                    "maxValue": 20
+                },
+                {
+                    "name": "tallos_c3",
+                    "minValue": 1,
+                    "maxValue": 30
+                }
+            ],
+            "duplicationRules": [
+                "_record_id",
+                "id"
+            ],
+            "comparisonsWithOtherColumnRules": [
+                {
+                    "comparetorOne": "alt_to_c3",
+                    "comparetorTwo": "alt_co_c3",
+                    "operator": "greater_than"
+                },
+                {
+                    "comparetorOne": "alt_to_c2",
+                    "comparetorTwo": "alt_to_c3",
+                    "operator": "less_than"
+                }
+            ],
+            "comparisonsWithDateRules": [
+                {
+                    "comparetorOne": "f_val_c3",
+                    "comparetorTwo": "f_val_c2",
+                    "operator": "greater_than"
+                }
+            ],
+            "orderColumnsRules": [
+                {
+                    "columns": [
+                        "CAP 1",
+                        "CAP 2",
+                        "CAP 3",
+                        "CAP 4",
+                        "CAP 5"
+                    ],
+                    "orderType": "descendente"
+                },
+                {
+                    "columns": [
+                        "Altura 1",
+                        "Altura 2",
+                        "Altura 3"
+                    ],
+                    "orderType": "ascendente"
+                }
+            ],
+            "rangeWithWordRules": [
+                {
+                    "typeColumn": "tipo_arbol",
+                    "rangeColumn": "altura",
+                    "ranges": [
+                        {
+                            "min": 0.0,
+                            "max": 5.0,
+                            "type": "Tipo 1"
+                        },
+                        {
+                            "min": 5.01,
+                            "max": 15.0,
+                            "type": "Tipo 2"
+                        },
+                        {
+                            "min": 15.01,
+                            "max": 20.0,
+                            "type": "Tipo 3"
+                        },
+                        {
+                            "min": 20.01,
+                            "max": null,
+                            "type": "Tipo 4"
+                        }
+                    ]
+                }
+            ],
+            "dateRangeRules": [
+                {
+                    "startDateColumn": "2024-01-18",
+                    "endDateColumn": "2024-10-18",
+                    "referenceDateColumn": "2024-09-18"
+                }
+            ],
+            "specificValuesRules": [
+                {
+                    "columnName": "_status",
+                    "allowedValues": [
+                        "realizado",
+                        "validado",
+                        "incognito"
+                    ]
+                },
+                {
+                    "columnName": "_tipo",
+                    "allowedValues": [
+                        "primario",
+                        "secundario",
+                        "terciario"
+                    ]
+                }
+            ],
+            "conditionalNonNullRules": [
+                {
+                    "selectedColumn": "_estado",
+                    "selectedValue": "realizado",
+                    "comparedColumns": [
+                        "_fecha_de_intervención",
+                        "_profesional_de_intervención",
+                        "_id_de_foto"
+                    ]
+                }
+            ]
+        }, 
+        "dictionaries": [
+            {
+                "columnName": "nombre_c_2",
+                "dictionaryName": "BD NOMBRES CIENTIFICOS CORREGIDA 2024 (completa)"
+            }
+        ]
+    },
+    "report": {
+        "headers": [
+            "_record_id",
+            "id",
+            "prof_di_c3"
+        ]
+    }
+}

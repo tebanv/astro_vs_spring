@@ -1,0 +1,31 @@
+---
+const categories = [
+  { name: 'Reglas Nulas', id: 'null-rules' },
+  { name: 'Reglas No Nulas', id: 'not-null-rules' },
+  { name: 'Tipos de Variables', id: 'variable-type-rules' },
+  { name: 'Reglas de Tamaño', id: 'size-rules' },
+  { name: 'Mínimos y Máximos', id: 'min-max-rules' },
+  { name: 'Reglas de Duplicación', id: 'duplication-rules' },
+  { name: 'Comparaciones entre Columnas', id: 'column-comparison-rules' },
+  { name: 'Comparaciones con Fechas', id: 'date-comparison-rules' },
+  { name: 'Orden de Columnas', id: 'column-order-rules' },
+  { name: 'Rangos con Palabras', id: 'range-with-word-rules' },
+  { name: 'Rangos de Fechas', id: 'date-range-rules' },
+  { name: 'Valores Específicos', id: 'specific-value-rules' },
+  { name: 'Reglas Condicionales No Nulas', id: 'conditional-non-null-rules' },
+  { name: 'Diccionarios', id: 'dictionaries' },
+  { name: 'Reporte', id: 'report' },
+];
+---
+
+<div class="space-y-6">
+  {categories.map((category) => (
+    <section id={category.id} class="bg-white shadow-md rounded-lg p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">{category.name}</h2>
+      <div class="bg-gray-100 p-4 rounded-md">
+        <p class="text-gray-600">Placeholder para el componente de {category.name}</p>
+      </div>
+    </section>
+  ))}
+</div>
+

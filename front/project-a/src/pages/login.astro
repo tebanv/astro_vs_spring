@@ -1,0 +1,10 @@
+---
+import LoginLayout from "../layouts/LoginLayout.astro";
+import LoginForm from "../components/LoginForm.svelte";
+---
+<LoginLayout title="Iniciar Sesión">
+    <div class="p-8">
+        
+        <LoginForm client:load />
+    </div>
+</LoginLayout>

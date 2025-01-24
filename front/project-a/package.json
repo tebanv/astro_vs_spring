@@ -1,0 +1,41 @@
+{
+  "name": "projectx",
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "astro": "astro",
+    "build": "astro build",
+    "dev": "astro dev",
+    "preview": "astro preview",
+    "start": "astro dev",
+    "start:elysia": "bun run server.ts",
+    "start:astro": "astro dev",
+    "start:both": "concurrently \"npm run start:elysia\" \"npm run start:astro\""
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^4.0.0-next.6",
+    "@types/jsonwebtoken": "^9.0.7",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
+    "tailwindcss": "^3.4.6"
+  },
+  "dependencies": {
+    "@astrojs/svelte": "^5.7.2",
+    "@astrojs/tailwind": "^5.1.0",
+    "@elysiajs/cors": "^1.1.1",
+    "@iconify/svelte": "^4.1.0",
+    "@koa/cors": "^5.0.0",
+    "astro": "^4.15.8",
+    "astro-icon": "^1.1.4",
+    "axios": "^1.7.9",
+    "axobject-query": "^4.1.0",
+    "elysia": "^1.1.23",
+    "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
+    "lucide-svelte": "^0.456.0",
+    "xlsx": "^0.18.5"
+  },
+  "overrides": {
+  "@sveltejs/vite-plugin-svelte": "^4.0.0-next.6"
+}
+}

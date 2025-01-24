@@ -1,0 +1,33 @@
+---
+import AsideMenu from '../components/AsideMenu.astro'
+import Footer from '../components/Footer.astro'
+const { title, currentPath } = Astro.props
+---
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Meta información básica -->
+        <meta charset="UTF-8">  
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/public/styles/global.css">
+        <title>{title}</title>
+    </head>
+    <body class="h-full bg-white">
+        <div id="app" class="h-full ">
+            
+            <aside class="grid-area-aside flex-col flex overflow-y-auto">                
+                <AsideMenu currentPath={currentPath} />
+            </aside>
+
+            <main class="grid-area-main rounded-lg bg-white w-full">
+                <slot />
+            </main>
+
+            <footer class="grid-area-footer min-h-[80px] text-gray-100">
+                <Footer />
+            </footer>
+
+        </div>
+    </body>
+</html>
+

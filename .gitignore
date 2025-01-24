@@ -1,24 +1,71 @@
+# ---- BACKEND (Java/Spring) ----
 # Compiled class file
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
 *.nar
 *.ear
-*.zip
-*.tar.gz
-*.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# Build artifacts
+/target/
+/build/
+/out/
+
+# IDEs and Editors
+/.idea/
+/.vscode/
+/*.iml
+
+# Logs and temp files
+*.log
+/logs/
+/hs_err_pid*
+/replay_pid*
+
+# Maven and Gradle
+/.mvn/
+/.m2/
+/.gradle/
+/gradle/
+/wrapper/
+
+# ---- FRONTEND (Node, Bun, Astro) ----
+# Node modules and dependencies
+front/project-a/node_modules/
+/.pnp/
+/.pnp.js
+
+# Package manager lockfiles (uncomment si usas uno específico)
+/package-lock.json
+/pnpm-lock.yaml
+/yarn.lock
+
+# Build and output directories
+/dist/
+/.out/
+/.next/
+/.vercel/
+/.netlify/
+.astro/
+.bun/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Bun cache
+.bun/
+
+# ---- GENERAL ----
+# System files
+*.swp
+*.swo
+*~

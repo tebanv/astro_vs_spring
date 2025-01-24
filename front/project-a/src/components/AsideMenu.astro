@@ -1,0 +1,72 @@
+---
+import { FileSpreadsheet, List, Cog, FileJson, BarChart2, Download } from 'lucide-svelte';
+import { Save, Upload, AlertCircle } from 'lucide-svelte';
+import  LogoutButton from './LogoutButton.svelte';
+const { currentPath } = Astro.props;
+const isIndexPage = currentPath === '/';
+---
+
+<nav class="h-full overflow-y-auto bg-white p-4 flex flex-col gap-2">
+    <!-- <div class="rounded-lg p-2 bg-gradient-to-t from-zinc-500 via-fuchsia-600/7">       
+        <ul>
+            <SideMenuItem href="/">
+                <HomeIcon /> 
+                Inicio
+            </SideMenuItem>
+        </ul>
+    </div> -->
+      {isIndexPage && (
+        <div class="">
+          <LogoutButton client:load />
+        </div>
+      )}
+   
+    <div class="bg-zinc-200 p-4 rounded-lg">
+        <h2 class="text-xl font-bold text-black mb-4">Guía rápida de uso</h2>
+        <ol class="space-y-4">
+          <li class="flex items-start">
+            <FileSpreadsheet class="w-5 h-5 text-blue-400 mr-2 mt-1 flex-shrink-0" />
+            <span class="text-black">Cargar archivo Excel</span>
+          </li>
+          <li class="flex items-start">
+            <List class="w-5 h-5 text-green-400 mr-2 mt-1 flex-shrink-0" />
+            <span class="text-black">Revisar y seleccionar cabeceras</span>
+          </li>
+          <li class="flex items-start">
+            <Cog class="w-5 h-5 text-yellow-400 mr-2 mt-1 flex-shrink-0" />
+            <span class="text-black">Configurar reglas por categoría</span>
+          </li>
+          <li class="flex items-start">
+            <FileJson class="w-5 h-5 text-purple-400 mr-2 mt-1 flex-shrink-0" />
+            <span class="text-black">Generar JSON de reglas</span>
+          </li>
+          <li class="flex items-start">
+            <BarChart2 class="w-5 h-5 text-red-400 mr-2 mt-1 flex-shrink-0" />
+            <span class="text-black">Analizar datos</span>
+          </li>
+          <li class="flex items-start">
+            <Download class="w-5 h-5 text-teal-400 mr-2 mt-1 flex-shrink-0" />
+            <span class="text-black">Descargar resultados</span>
+          </li>
+        </ol>
+    </div>
+      
+    <!-- Instrucciones para guardar y cargar estado -->
+    <div class="bg-zinc-200 p-4 rounded-lg mt-4">
+        <h2 class="text-xl font-bold text-black mb-4">Guardar/Cargar Progreso</h2>
+        <ul class="space-y-4">
+          <li class="flex items-start">
+            <Save class="w-5 h-5 text-blue-400 mr-2 mt-1 flex-shrink-0" />
+            <span class="text-black">Guarde su progreso haciendo clic en "Guardar Estado"</span>
+          </li>
+          <li class="flex items-start">
+            <Upload class="w-5 h-5 text-green-400 mr-2 mt-1 flex-shrink-0" />
+            <span class="text-black">Cargue un estado guardado con "Cargar Estado"</span>
+          </li>
+          <li class="flex items-start">
+            <AlertCircle class="w-5 h-5 text-yellow-400 mr-2 mt-1 flex-shrink-0" />
+            <span class="text-black">Guarde regularmente para evitar pérdida de trabajo</span>
+          </li>
+        </ul>
+    </div>
+</nav>
