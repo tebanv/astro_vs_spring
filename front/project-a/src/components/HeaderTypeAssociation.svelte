@@ -91,7 +91,7 @@
             >
                 <option value="">Seleccionar tipo</option>
                 {#each variableTypes as type}
-                    <option value={type.name}>{type.name}</option>
+                    <option value={type.name}>{type.label}</option>
                 {/each}
             </select>
 

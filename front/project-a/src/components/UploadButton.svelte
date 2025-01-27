@@ -2,11 +2,17 @@
   import { headersStore } from '../stores/headersStore.js';
   import { excelFileStore } from '../stores/excelFileStore.js';
   import * as XLSX from 'xlsx';
+  import { writable } from 'svelte/store';
 
   let fileInput;
 
+let isLoading = writable(false); // Estado de carga
+
   function handleFileChange(event) {
     const file = event.target.files[0];
+    if (!file) return;
+
+    isLoading.set(true); // Activar el estado de carga
     const reader = new FileReader();
 
     reader.onload = (e) => {
@@ -20,6 +26,7 @@
       const uniqueHeaders = new Set(headers);
       if (uniqueHeaders.size !== headers.length) {
         alert('Se detectaron cabeceras duplicadas. Por favor, corrija los duplicados en el archivo Excel antes de importar.');
+        isLoading.set(false);
         return;
       }
 
@@ -27,6 +34,7 @@
       headersStore.set(headers);
       excelFileStore.set({ file: file, fileName: file.name });  // Guardamos el archivo en el nuevo store
       console.log(headers);
+      isLoading.set(false); // Desactivar el estado de carga
     };
 
     reader.readAsArrayBuffer(file);
@@ -52,6 +60,18 @@
     />
   </label>
 </div>
+<!-- Overlay de carga -->
+{#if $isLoading}
+  <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+      <svg class="animate-spin h-8 w-8 text-blue-500 mb-4" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0116 0h-4a4 4 0 00-8 0H4z"></path>
+      </svg>
+      <p class="text-lg font-semibold text-gray-700">Cargando cabeceras...</p>
+    </div>
+  </div>
+{/if}
 
   
   
