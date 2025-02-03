@@ -7,19 +7,11 @@ const isIndexPage = currentPath === '/';
 ---
 
 <nav class="h-full overflow-y-auto bg-white p-4 flex flex-col gap-2">
-    <!-- <div class="rounded-lg p-2 bg-gradient-to-t from-zinc-500 via-fuchsia-600/7">       
-        <ul>
-            <SideMenuItem href="/">
-                <HomeIcon /> 
-                Inicio
-            </SideMenuItem>
-        </ul>
-    </div> -->
-      {isIndexPage && (
-        <div class="">
+
+    
+    <div class="">
           <LogoutButton client:load />
-        </div>
-      )}
+    </div>
    
     <div class="bg-zinc-200 p-4 rounded-lg">
         <h2 class="text-xl font-bold text-black mb-4">Guía rápida de uso</h2>
