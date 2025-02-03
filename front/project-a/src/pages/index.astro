@@ -8,26 +8,10 @@ import GenerateJsonButton from "../components/GenerateJsonButton.svelte";
 import SaveLoadState from "../components/SaveLoadState.svelte";
 import AnalyzeButton from "../components/AnalyzeButton.svelte";
 import ReportHeaders from "../components/ReportHeaders.svelte";
-// import { redirect } from 'astro/navigation';
 
-// export async function getServerSideProps({ request, cookies }) {
-//   const token = localStorage.getItem('token');
 
-//   if (!token) {
-//     return redirect('/login');
-//   }
-
-//   return {
-//     props: {
-//         currentPath: Astro.url.pathname,
-        
-//     },
-//   };
-// }
-
-const { currentPath } = Astro.props; // Obtener currentPath de los props
 ---
-<Layout title="Project-a" currentPath={currentPath}>
+<Layout title="Project-a">
   <div class="grid-area-main h-full flex flex-col gap-4 p-4 ">
     <!-- Área de cabeceras -->
     <div id="container" class="bg-zinc-200 p-4 rounded-lg backdrop-blur-sm overflow-y-auto flex-shrink-0">
@@ -64,4 +48,9 @@ const { currentPath } = Astro.props; // Obtener currentPath de los props
   </div>
 </Layout>
 
-
+<script client:load>
+  if (!localStorage.getItem('token')) {
+    console.log("test validación no token");
+    window.location.href = '/login';
+  }
+</script>

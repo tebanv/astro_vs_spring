@@ -5,7 +5,6 @@
       // Limpiar localStorage
       localStorage.removeItem('token');
       localStorage.removeItem('role');
-  
       // Redirigir al login
       window.location.href = '/login';
     }
@@ -13,7 +12,7 @@
   
   <button
     on:click={handleLogout}
-    class="w-full bg-zinc-400 text-white py-2 px-4 rounded hover:bg-zinc-500 transition-colors flex items-center justify-center"
+    class="w-full bg-purple-400 text-white py-2 px-4 rounded hover:bg-purple-500 transition-colors flex items-center justify-center"
   >
     <LogOut class="mr-2" size={18} strokeWidth={2.5} />
     <span class="font-normal">Cerrar Sesión</span>
