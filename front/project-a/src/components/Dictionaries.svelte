@@ -141,7 +141,7 @@
                     class="px-4 py-2 rounded text-white"
                     on:click={() => activeTab = 'codes'}
                 >
-                    Codes
+                    Códigos
                 </button>
             </div>
 

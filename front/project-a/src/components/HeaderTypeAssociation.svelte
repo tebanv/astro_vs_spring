@@ -53,7 +53,7 @@
         isExpanded = !isExpanded;
     }
 
-    const tooltipContent = "El valor en la columna seleccionada Debe ser: Texto, Número entero, Número decimal, Alfanumerico, Si o No, Falso o Verdadero, Binario.";
+    const tooltipContent = "El valor en la columna seleccionada Debe ser: Texto, Númererico, Alfanumerico, Si o No, Falso o Verdadero, Booleano (1 o 0).";
 </script>
 
 <div class="custom-green-div p-4 rounded-lg">
