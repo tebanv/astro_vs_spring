@@ -7,11 +7,11 @@
   ]
 } -->
 <script>
-  let diccionarios = []; // Array para almacenar los diccionarios
+  let dictionaries = []; // Array para almacenar los diccionarios
   let error = null; // Variable para manejar errores
 
   // Función para obtener los diccionarios
-  async function obtenerDiccionarios() {
+  async function obtainDictionaries() {
     try {
       const response = await axios.get('/api/diccionarios', {
         headers: {
@@ -20,7 +20,7 @@
       });
 
       // Asigna el array de diccionarios desde la respuesta
-      diccionarios = response.data.diccionarios;
+      dictionaries = response.data.dictionaries;
     } catch (err) {
       // Manejo de errores
       error = 'Error al obtener los diccionarios';
@@ -30,6 +30,6 @@
 
   // Llama a la función cuando el componente se monte
   onMount(() => {
-    obtenerDiccionarios();
+    obtainDictionaries();
   });
 </script>
