@@ -33,9 +33,11 @@
 
         const decoded = jwtDecode(data.token);
         const userRole = decoded?.role;
+        const expTime = decoded?.exp;
 
         localStorage.setItem('token', data.token);
         localStorage.setItem('rol', userRole);
+        localStorage.setItem('exp', expTime);
 
         window.location.href = '/';
       } else {
