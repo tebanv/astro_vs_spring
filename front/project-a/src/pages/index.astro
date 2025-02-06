@@ -90,17 +90,12 @@ import ReportHeaders from "../components/ReportHeaders.svelte";
     warningDiv.style.zIndex = '1000';
     warningDiv.innerHTML = `
       <p>Su sesión expirará en aproximadamente ${hours} horas. Guarde su trabajo y vuelva a iniciar sesión pronto.</p>
-      <button id="closeWarning" style="background-color: #FF6347; border: none; color: white; padding: 5px 10px; margin-top: 10px; cursor: pointer;">Cerrar Sesion</button>      
+      <button id="closeWarning" style="background-color: #FF6347; border: none; color: white; padding: 5px 10px; margin-top: 10px; cursor: pointer;">Entendido</button>      
     `;
     document.body.appendChild(warningDiv);
-  
+      
     document.getElementById('closeWarning').addEventListener('click', () => {
       warningDiv.remove();
-      localStorage.removeItem('token');
-      localStorage.removeItem('role');
-      localStorage.removeItem('role');
-      // Redirigir al login
-      window.location.href = '/login';
     });
   }
   
