@@ -20,3 +20,5 @@ include ':jpa-repository'
 project(':jpa-repository').projectDir = file('./infrastructure/driven-adapters/jpa-repository')
 include ':excel'
 project(':excel').projectDir = file('./infrastructure/driven-adapters/excel')
+include ':dictionaries'
+project(':dictionaries').projectDir = file('./infrastructure/driven-adapters/dictionaries')

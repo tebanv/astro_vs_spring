@@ -39,7 +39,7 @@ public class JpaConfig {
         entityManagerFactory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 
         Properties jpaProperties = new Properties();
-        jpaProperties.put("hibernate.dialect", dialect);
+        //jpaProperties.put("hibernate.dialect", dialect);
         jpaProperties.put("hibernate.hbm2ddl.auto", "update"); // Cambiar a "none" en producción
         entityManagerFactory.setJpaProperties(jpaProperties);
 

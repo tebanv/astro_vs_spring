@@ -1,24 +1,16 @@
-package co.com.savia.api.config;
+package co.com.savia.api.security;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
-import java.util.Arrays;
 import java.util.List;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 @Log4j2
 @Configuration
@@ -56,9 +48,9 @@ public class CorsConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/login").permitAll() // Permitir login sin token
-                        //.requestMatchers("/api/**").hasRole("ADMIN") // Endpoints protegidos para admin
-                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll() // Permitir acceso a H2 Console
+                        .requestMatchers("/api/**").hasRole("ADMIN") // Endpoints protegidos para admin
+                        //.requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated() // Proteger otras rutas
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) // Añade el filtro antes del de autenticación

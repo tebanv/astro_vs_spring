@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Mono;
@@ -30,7 +31,7 @@ public class ApiRest {
 
     private final AnalyzeDatabaseUseCase useCase;
 
-    //@PreAuthorize("hasRole('permission')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/analyze-databases-savia")
     public Mono<ResponseEntity<?>> analyzeDatabases(@RequestParam("db-file") MultipartFile dbFile,
                                                 @RequestParam("br-file") MultipartFile brFile) {
@@ -79,7 +80,7 @@ public class ApiRest {
         }
     }
 
-    //@PreAuthorize("hasRole('permission')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/report-status/{reportId}")
     public Mono<ResponseEntity<?>> getReportStatus(@PathVariable("reportId") String reportId) {
         log.info("Se consulta reporte por id: {}", reportId);
@@ -111,6 +112,7 @@ public class ApiRest {
 
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/download-excel/{filename}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("filename") String filename) {
         try {

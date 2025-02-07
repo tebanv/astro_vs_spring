@@ -10,5 +10,4 @@ public interface ExcelRepository {
     List<Map<String, String>> processExcelFile(InputStream dbFileInputStream) throws IOException;
     String generateErrorFileExcel(int sizeHeadersReport, List<String[]> errorRows, String filePath);
 
-    List<Map<String, String>> getDictionary(String dictionaryName);
 }

@@ -1,4 +1,4 @@
-package co.com.savia.api.config;
+package co.com.savia.api.security;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 
-//@Configuration
-//@WebFilter("/**")
+@Configuration
+@WebFilter("/**")
 public class SecurityHeadersFilter implements Filter {
 
     @Override

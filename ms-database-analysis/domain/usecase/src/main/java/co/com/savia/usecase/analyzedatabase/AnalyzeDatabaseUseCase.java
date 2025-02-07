@@ -1,5 +1,6 @@
 package co.com.savia.usecase.analyzedatabase;
 
+import co.com.savia.model.dictionary.gateways.DictionaryRepository;
 import co.com.savia.model.excel.gateways.ExcelRepository;
 import co.com.savia.model.report.ReportModel;
 import co.com.savia.model.report.gateways.ReportRepository;
@@ -32,6 +33,7 @@ public class AnalyzeDatabaseUseCase {
     private final Environment environment;
     private final ReportRepository reportRepository;
     private final ExcelRepository excelRepository;
+    private final DictionaryRepository dictionaryRepository;
 
     public Mono<ReportResponse> analyzeDatabaseWithRules(List<Map<String, String>> records, ValidationRules rules,
                                                          String fileName) {
@@ -385,7 +387,7 @@ public class AnalyzeDatabaseUseCase {
 
             try {
                 // Obtener el diccionario cargado
-                List<Map<String, String>> dictionaryEntries = excelRepository.getDictionary(dictionaryName);
+                List<Map<String, String>> dictionaryEntries = dictionaryRepository.getDictionary(dictionaryName);
 
                 // Validar si el diccionario está vacío
                 if (dictionaryEntries == null || dictionaryEntries.isEmpty()) {
@@ -451,7 +453,7 @@ public class AnalyzeDatabaseUseCase {
 
                 try {
                     // Obtener el diccionario cargado
-                    List<Map<String, String>> dictionaryEntries = excelRepository.getDictionary(dictionaryName);
+                    List<Map<String, String>> dictionaryEntries = dictionaryRepository.getDictionary(dictionaryName);
 
                     // Validar si el diccionario está vacío
                     if (dictionaryEntries == null || dictionaryEntries.isEmpty()) {
@@ -510,6 +512,7 @@ public class AnalyzeDatabaseUseCase {
             }
         });
     }
+
     private CompletableFuture<Void> validateCodeEntries(Map<String, String> record, List<DirectoriesCodes> codeRules, List<String> errors) {
 
         return CompletableFuture.runAsync(() -> {
@@ -529,7 +532,7 @@ public class AnalyzeDatabaseUseCase {
                 }
 
                 try {
-                    List<Map<String, String>> dictionaryEntries = excelRepository.getDictionary(dictionaryName);
+                    List<Map<String, String>> dictionaryEntries = dictionaryRepository.getDictionary(dictionaryName);
 
                     if (dictionaryEntries == null || dictionaryEntries.isEmpty()) {
                         log.warn("El diccionario de codigos {} no se pudo cargar o esta vacio.", dictionaryName);

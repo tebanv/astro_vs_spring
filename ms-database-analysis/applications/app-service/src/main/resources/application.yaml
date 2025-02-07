@@ -49,6 +49,7 @@ management:
         enabled: true
 jwt:
   json-exp-roles: "/roles"
+  secret: "4oClZf4F3KnF2s5p9L+FqgP+zA0KQkPyQ9l0u4Oel3U="
 cors:
   #allowed-origins: "http://localhost:4200,http://localhost:8085, **/**/"
   allowed-origins: "*"
@@ -57,7 +58,7 @@ general:
   sheet-name: "Errores"
   prefix-name: "Errors-"
   file-path-report-generated: "C:\\Projects\\GitHub\\Savia\\"
-  file-path-dictionaries: "C:\\Projects\\GitHub\\Savia\\databases"
+  file-path-dictionaries: "C:\\Projects\\GitHub\\Savia\\Dictionaries"
 headers:
   categoriesRules: "1 Detección de nulidad, 1.1 Detección de no nulidad, 2 Tipo-variable, 3 Tamaño del Campo, 4 Campos Duplicados, \
     \ 5 Diccionario por Nombres, 5.1 Diccionario por Habitos, 5.2 Diccionario por Codigos, 6 Rango con palabra clave, 7 Comparacion entre columnas, \
