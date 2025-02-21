@@ -49,8 +49,8 @@ public class CorsConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/login").permitAll() // Permitir login sin token
                         .requestMatchers("/h2-console/**").permitAll() // Permitir acceso a H2 Console
-                        .requestMatchers("/api/**").hasRole("ADMIN") // Endpoints protegidos para admin
-                        //.requestMatchers("/api/**").permitAll()
+                        //.requestMatchers("/api/**").hasRole("ADMIN") // Endpoints protegidos para admin
+                        .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated() // Proteger otras rutas
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) // Añade el filtro antes del de autenticación

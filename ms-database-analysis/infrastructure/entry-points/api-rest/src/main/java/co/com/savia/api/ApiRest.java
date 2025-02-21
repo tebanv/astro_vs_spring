@@ -31,7 +31,7 @@ public class ApiRest {
 
     private final AnalyzeDatabaseUseCase useCase;
 
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/analyze-databases-savia")
     public Mono<ResponseEntity<?>> analyzeDatabases(@RequestParam("db-file") MultipartFile dbFile,
                                                 @RequestParam("br-file") MultipartFile brFile) {
@@ -80,7 +80,7 @@ public class ApiRest {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/report-status/{reportId}")
     public Mono<ResponseEntity<?>> getReportStatus(@PathVariable("reportId") String reportId) {
         log.info("Se consulta reporte por id: {}", reportId);
@@ -112,7 +112,7 @@ public class ApiRest {
 
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/download-excel/{filename}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("filename") String filename) {
         try {
