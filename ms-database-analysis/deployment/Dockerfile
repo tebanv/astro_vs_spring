@@ -1,7 +1,9 @@
+# Imagen base de OpenJDK 17
 FROM eclipse-temurin:17-jdk-alpine
-VOLUME /tmp
+# Establecer el directorio de trabajo dentro del contenedor
+WORKDIR /app
 COPY *.jar ms-database-analysis.jar
-ENV JAVA_OPTS=" -Xshareclasses:name=cacheapp,cacheDir=/cache,nonfatal -XX:+UseContainerSupport -XX:MaxRAMPercentage=70 -Djava.security.egd=file:/dev/./urandom"
-# Replace with a non-root user to avoid running the container with excessive privileges
-USER appuser
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS  -jar ms-database-analysis.jar" ]
+# Exponer el puerto en el que corre el servicio (ajústalo según tu app)
+EXPOSE 8085
+# Comando para ejecutar la aplicación
+CMD ["java", "-jar", "ms-database-analysis.jar"]
