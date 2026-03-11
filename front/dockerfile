@@ -1,30 +1,32 @@
 # ETAPA 1: Construcción
-FROM oven/bun:1-alpine AS build
+FROM oven/bun:1.1-alpine AS build
 WORKDIR /app
 
-# Copiamos los archivos desde project-a (que ahora es nuestra raíz)
-COPY package.json bun.lockb ./
-RUN bun install --frozen-lockfile
+# Copiamos los archivos de configuración
+COPY project-a/package.json ./
+# Eliminamos el lockfile viejo por si tiene rutas rotas o errores de 2023
+RUN rm -f bun.lockb 
 
-COPY . .
+# Instalamos desde cero DENTRO de Docker (aquí el 404 no debería existir)
+RUN bun install
 
-# Esto generará la carpeta /dist
+# Ahora sí, copiamos el resto del código de project-a
+COPY project-a/ .
+
+# Construimos el proyecto Astro
 RUN bun run build
 
-# ETAPA 2: Runtime
-FROM oven/bun:1-distroless AS runtime
+# ETAPA 2: Runtime (Imagen ultra ligera)
+FROM oven/bun:1.1-alpine AS runtime
 WORKDIR /app
 
-# Copiamos lo necesario para ejecutar el servidor
+# Copiamos solo lo necesario para que el servidor corra
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./
-COPY --from=build /app/server.ts ./ 
 
-# EXPOSE el puerto que definiste en server.ts
+# Exponemos el puerto de Astro
 EXPOSE 4321
 
-# Si usas Elysia/Server.ts, el comando suele ser este:
-CMD ["bun", "run", "server.ts"]
-# O si Astro genera un entrypoint:
-# CMD ["bun", "run", "dist/server/entry.mjs"]
+# Comando para iniciar el servidor de Bun generado por Astro
+CMD ["bun", "./dist/server/entry.mjs"]
