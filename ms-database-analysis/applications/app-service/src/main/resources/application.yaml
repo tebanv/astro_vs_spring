@@ -2,11 +2,13 @@ logging:
   level:
     org:
       springframework:
-        security: INFO
+        security: ${LOGGING_LEVEL_SECURITY}
+        #security: INFO
   #pattern:
     #console: "[%-5level] %d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 server:
-  port: 8080
+  port: ${SERVER_PORT}
+  #port: 8080
 spring:
   datasource:
     url: jdbc:h2:mem:reportdb;DB_CLOSE_DELAY=-1
@@ -27,6 +29,8 @@ spring:
     add-properties: false
   profiles:
     include: local
+    #active: "local"
+    active: ${SPRING_PROFILES_ACTIVE}
   servlet:
     multipart:
       max-file-size: "10MB"
@@ -43,8 +47,10 @@ management:
         enabled: true
 jwt:
   json-exp-roles: "/roles"
-  secret: "4oClZf4F3KnF2s5p9L+FqgP+zA0KQkPyQ9l0u4Oel3U="
-  expiration: 432000000 # 1 día en milisegundos
+  secret: ${SECURITY_JWT_SECRET}
+  #secret: "4oClZf4F3KnF2s5p9L+FqgP+zA0KQkPyQ9l0u4Oel3U="
+  expiration: ${SECURITY_JWT_EXPIRATION} # 1 día en milisegundos
+  #expiration: 432000000 # 1 día en milisegundos
 cors:
   #allowed-origins: "https://ip-o-dominio-de-savia:4200,"
   allowed-origins: "*"
@@ -52,8 +58,10 @@ general:
   file-type-report-generated: ".xlsx"
   sheet-name: "Errores"
   prefix-name: "Errors-"
-  file-path-report-generated: "C:\\Projects\\GitHub\\Savia\\" #Cambiar ruta a conveniencia
-  file-path-dictionaries: "C:\\Projects\\GitHub\\Savia\\Dictionaries" #Cambiar a ruta donde quede los diccionarios
+  file-path-report-generated: ${FILE_PATH_REPORT_GENERATED}
+  #file-path-report-generated: "C:\\Projects\\GitHub\\Savia\\" #Cambiar ruta a conveniencia
+  #file-path-dictionaries: "C:\\Projects\\GitHub\\Savia\\Dictionaries" #Cambiar a ruta donde quede los diccionarios
+  file-path-dictionaries: ${FILE_PATH_DICTIONARY}
 headers:
   categoriesRules: "1 Detección de nulidad, 1.1 Detección de no nulidad, 2 Tipo-variable, 3 Tamaño del Campo, 4 Campos Duplicados, \
     \ 5 Diccionario por Nombres, 5.1 Diccionario por Habitos, 5.2 Diccionario por Codigos, 6 Rango con palabra clave, 7 Comparacion entre columnas, \

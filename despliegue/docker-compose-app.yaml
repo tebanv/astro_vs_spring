@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # FRONTEND 
+  # ==========================================
+
+  # 1. Landing Page Principal
+  front-savia-check:
+    build: ../front
+    container_name: savia_front_check
+    restart: always
+    networks:
+      - automationia_proxy
+    labels:
+      - "traefik.enable=true"
+      # Router HTTPS
+      - "traefik.http.routers.savia-landing.rule=Host(`check.saviaservicios.com`)"
+      - "traefik.http.routers.savia-landing.entrypoints=websecure"
+      - "traefik.http.routers.savia-landing.tls=true"
+      - "traefik.http.routers.savia-landing.tls.certresolver=myresolver"
+      # Router HTTP → HTTPS
+      - "traefik.http.routers.savia-landing-http.rule=Host(`check.saviaservicios.com`)"
+      - "traefik.http.routers.savia-landing-http.entrypoints=web"
+      - "traefik.http.routers.savia-landing-http.middlewares=savia-redirect"
+      #- "traefik.http.routers.savia-landing-http.middlewares=redirect@file"
+      # Definición del Middleware de redirección (Nativo, no @file)
+      - "traefik.http.middlewares.savia-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.savia-redirect.redirectscheme.permanent=true"
+
+      # Puerto interno del contenedor (nginx)
+      - "traefik.http.services.savia-landing.loadbalancer.server.port=80"
+
+      # Red donde está Traefik
+      - "traefik.docker.network=savia_proxy"
+
+  # ==========================================
+  # BACKEND
+  # ==========================================
+  ms-database-analysis:
+    build: ../ms-database-analysis
+    container_name: ms_database_analysis
+    restart: always
+    environment:
+      - SERVER_PORT=8081
+      - SPRING_PROFILES_ACTIVE=local
+      - SPRING_JPA_SHOW_LOGS=true
+      - SECURITY_JWT_SECRET=5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
+      - SECURITY_JWT_EXPIRATION=432000000
+      - FILE_PATH_REPORT_GENERATED="C:\\Projects\\GitHub\\Savia\\"
+      - FILE_PATH_DICTIONARY="C:\\Projects\\GitHub\\Savia\\Dictionaries"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ms-database-analysis.rule=Host(`api.saviaservicios.com`) && PathPrefix(`/ms-database-analysis`)"
+      - "traefik.http.routers.ms-database-analysis.entrypoints=websecure"
+      - "traefik.http.routers.ms-database-analysis.tls.certresolver=myresolver"
+      - "traefik.http.services.ms-database-analysis.loadbalancer.server.port=8081"
+      - "traefik.docker.network=savia_proxy"
+    networks:
+      - savia_internal
+      - savia_proxy # Para recibir peticiones desde internet
+
+
+networks:
+  savia_internal:
+    external: true
+  savia_proxy:
+    external: true
