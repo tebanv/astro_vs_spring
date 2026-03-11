@@ -10,7 +10,7 @@ COPY build.gradle settings.gradle main.gradle gradle.properties lombok.config ./
 COPY applications ./applications
 COPY domain ./domain
 COPY infrastructure ./infrastructure
-COPY deployment .
+COPY . ./deployment
 
 # Ajuste de permisos
 USER root
