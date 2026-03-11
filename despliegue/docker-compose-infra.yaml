@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   traefik:
-    image: traefik:v2.10
+    image: traefik:v3.0
     container_name: traefik
     restart: always
     command:
@@ -17,6 +17,8 @@ services:
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=automationia0916@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    environment:
+      - DOCKER_API_VERSION=1.41  # <--- Agrega esta línea
     ports:
       - "80:80"
       - "443:443"
