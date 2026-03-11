@@ -2,30 +2,28 @@
 FROM oven/bun:1.1-alpine AS build
 WORKDIR /app
 
-# Copiamos los archivos de configuración
-COPY project-a/package.json ./
-# Eliminamos el lockfile viejo por si tiene rutas rotas o errores de 2023
-RUN rm -f bun.lockb 
+# 1. Copiamos el package.json (ya estamos dentro de project-a según el compose)
+COPY package.json ./
 
-# Instalamos desde cero DENTRO de Docker (aquí el 404 no debería existir)
+# 2. Limpieza y Reinstalación fresca
+RUN rm -f bun.lockb 
 RUN bun install
 
-# Ahora sí, copiamos el resto del código de project-a
-COPY project-a/ .
+# 3. Copiamos el resto del código fuente
+COPY . .
 
-# Construimos el proyecto Astro
+# 4. Construimos el proyecto Astro
 RUN bun run build
 
-# ETAPA 2: Runtime (Imagen ultra ligera)
+# ETAPA 2: Runtime
 FROM oven/bun:1.1-alpine AS runtime
 WORKDIR /app
 
-# Copiamos solo lo necesario para que el servidor corra
+# Copiamos solo lo necesario del build
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./
 
-# Exponemos el puerto de Astro
 EXPOSE 4321
 
 # Comando para iniciar el servidor de Bun generado por Astro
