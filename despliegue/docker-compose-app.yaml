@@ -7,7 +7,9 @@ services:
 
   # 1. Landing Page Principal
   front-savia-check:
-    build: ../front
+    build:
+      context: ../front
+      dockerfile: dockerfile
     container_name: savia_front_check
     restart: always
     networks:
@@ -38,7 +40,9 @@ services:
   # BACKEND
   # ==========================================
   ms-database-analysis:
-    build: ../ms-database-analysis/deployment
+    build:
+      context: ../ms-database-analysis    # <--- El "universo" ahora es toda la carpeta del microservicio
+      dockerfile: deployment/Dockerfile  # <--- Dónde está el manual de instrucciones
     container_name: ms_database_analysis
     restart: always
     environment:
@@ -47,8 +51,8 @@ services:
       - SPRING_JPA_SHOW_LOGS=true
       - SECURITY_JWT_SECRET=5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
       - SECURITY_JWT_EXPIRATION=432000000
-      - FILE_PATH_REPORT_GENERATED="C:\\Projects\\GitHub\\Savia\\"
-      - FILE_PATH_DICTIONARY="C:\\Projects\\GitHub\\Savia\\Dictionaries"
+      - FILE_PATH_REPORT_GENERATED="/opt/astro_vs_spring/testfiles/reports/"
+      - FILE_PATH_DICTIONARY="/opt/astro_vs_spring/testfiles/dictionaries/"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ms-database-analysis.rule=Host(`api.saviaservicios.com`) && PathPrefix(`/ms-database-analysis`)"

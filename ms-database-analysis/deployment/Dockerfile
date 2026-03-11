@@ -3,14 +3,13 @@ FROM gradle:8.5-jdk17-alpine AS build
 
 WORKDIR /home/gradle/project
 
-# 1. Copiamos los archivos de configuración de Gradle de la raíz
+# 1. Ahora los archivos están en la raíz del contexto (../ms-database-analysis)
 COPY build.gradle settings.gradle main.gradle gradle.properties lombok.config ./
 
-# 2. Copiamos los MÓDULOS de la Clean Architecture
+# 2. Copiamos los MÓDULOS (ahora están visibles porque el contexto es el correcto)
 COPY applications ./applications
 COPY domain ./domain
 COPY infrastructure ./infrastructure
-COPY deployment ./deployment
 
 # Ajuste de permisos
 USER root
@@ -20,16 +19,9 @@ USER gradle
 # 3. Construimos el proyecto
 RUN gradle clean bootJar --no-daemon
 
-# ETAPA 2: Ejecución (Runtime)
+# ETAPA 2: Ejecución
 FROM eclipse-temurin:17-jre-alpine
-
 WORKDIR /app
-
-# 4. Ubicación del JAR
 COPY --from=build /home/gradle/project/applications/app-service/build/libs/*.jar app.jar
-
-# Puerto
 EXPOSE 8081
-
-# Entrypoint
 ENTRYPOINT ["java", "-jar", "app.jar"]
