@@ -2,34 +2,28 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Instalamos Bun dentro de esta imagen de Node
+# Instalamos Bun
 RUN npm install -g bun
 
-# Copiamos solo el package.json
+# Copiamos package.json
 COPY package.json ./
 
-# CONFIGURACIÓN ANTIFALLOS: 
-# Forzamos el registro oficial y usamos npm para la instalación inicial 
-# porque maneja mejor los errores 404 de paquetes scoped (@astrojs)
-RUN npm config set registry https://registry.npmjs.org/
-RUN npm install
+# --- MANIOBRA DE EVASIÓN ---
+# Usamos el registro de Yarn o Cloudflare que suelen ser más resilientes
+RUN npm config set registry https://registry.yarnpkg.com/
+# Intentamos instalar con flags de limpieza
+RUN npm install --no-package-lock --verbose || npm install --registry=https://registry.npmjs.org/
 
-# Ahora que los paquetes están ahí, usamos Bun para el resto
+# Si lo anterior pasa, seguimos con Bun
 COPY . .
-
-# Construimos el proyecto Astro (usando Bun para velocidad)
 RUN bun run build
 
-# ETAPA 2: Runtime (Imagen ultra ligera con Bun)
+# ETAPA 2: Runtime
 FROM oven/bun:1.1-alpine AS runtime
 WORKDIR /app
-
-# Copiamos solo lo necesario
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./
 
 EXPOSE 4321
-
-# Comando de inicio
 CMD ["bun", "./dist/server/entry.mjs"]
