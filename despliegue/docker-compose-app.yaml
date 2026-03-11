@@ -8,8 +8,8 @@ services:
   # 1. Landing Page Principal
   front-savia-check:
     build:
-      context: ../front
-      dockerfile: dockerfile
+      context: ../front/project-a  # <--- Apuntamos directo a la carpeta del proyecto
+      dockerfile: ../dockerfile     # <--- El dockerfile está un nivel arriba
     container_name: savia_front_check
     restart: always
     networks:

@@ -2,30 +2,29 @@
 FROM oven/bun:1-alpine AS build
 WORKDIR /app
 
-# Copiamos archivos de dependencias
-COPY package.json bun.lockb* ./
-
-# Instalamos dependencias usando Bun (mucho más rápido que npm)
+# Copiamos los archivos desde project-a (que ahora es nuestra raíz)
+COPY package.json bun.lockb ./
 RUN bun install --frozen-lockfile
 
-# Copiamos el resto del código y construimos
 COPY . .
+
+# Esto generará la carpeta /dist
 RUN bun run build
 
-# ETAPA 2: Runtime (Producción)
+# ETAPA 2: Runtime
 FROM oven/bun:1-distroless AS runtime
 WORKDIR /app
 
-# Copiamos solo lo necesario desde la etapa de construcción
-# Si usas SSR, copia la carpeta de build (dist) y node_modules
+# Copiamos lo necesario para ejecutar el servidor
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./
+COPY --from=build /app/server.ts ./ 
 
-# Exponemos el puerto (Astro por defecto usa el 4321, pero puedes ajustarlo)
+# EXPOSE el puerto que definiste en server.ts
 EXPOSE 4321
 
-# Comando para iniciar (Ajusta según qué script quieras correr: astro o elysia)
-CMD ["bun", "run", "dist/server/entry.mjs"] 
-# O si prefieres correr tu script de elysia:
-# CMD ["bun", "run", "start:elysia"]
+# Si usas Elysia/Server.ts, el comando suele ser este:
+CMD ["bun", "run", "server.ts"]
+# O si Astro genera un entrypoint:
+# CMD ["bun", "run", "dist/server/entry.mjs"]
