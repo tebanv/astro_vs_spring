@@ -7,9 +7,9 @@ WORKDIR /home/gradle/project
 COPY build.gradle settings.gradle main.gradle gradle.properties lombok.config ./
 
 # 2. Copiamos los MÓDULOS de la Clean Architecture
-COPY applications ./applications
-COPY domain ./domain
-COPY infrastructure ./infrastructure
+COPY ../applications ./applications
+COPY ../domain ./domain
+COPY ../infrastructure ./infrastructure
 COPY . ./deployment
 
 # Ajuste de permisos
