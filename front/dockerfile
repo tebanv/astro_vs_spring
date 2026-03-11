@@ -1,0 +1,31 @@
+# ETAPA 1: Construcción
+FROM oven/bun:1-alpine AS build
+WORKDIR /app
+
+# Copiamos archivos de dependencias
+COPY package.json bun.lockb* ./
+
+# Instalamos dependencias usando Bun (mucho más rápido que npm)
+RUN bun install --frozen-lockfile
+
+# Copiamos el resto del código y construimos
+COPY . .
+RUN bun run build
+
+# ETAPA 2: Runtime (Producción)
+FROM oven/bun:1-distroless AS runtime
+WORKDIR /app
+
+# Copiamos solo lo necesario desde la etapa de construcción
+# Si usas SSR, copia la carpeta de build (dist) y node_modules
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./
+
+# Exponemos el puerto (Astro por defecto usa el 4321, pero puedes ajustarlo)
+EXPOSE 4321
+
+# Comando para iniciar (Ajusta según qué script quieras correr: astro o elysia)
+CMD ["bun", "run", "dist/server/entry.mjs"] 
+# O si prefieres correr tu script de elysia:
+# CMD ["bun", "run", "start:elysia"]
