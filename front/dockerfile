@@ -1,30 +1,35 @@
 # ETAPA 1: Construcción
-FROM oven/bun:1.1-alpine AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 
-# 1. Copiamos el package.json (ya estamos dentro de project-a según el compose)
+# Instalamos Bun dentro de esta imagen de Node
+RUN npm install -g bun
+
+# Copiamos solo el package.json
 COPY package.json ./
 
-# 2. Limpieza y Reinstalación fresca
-RUN rm -f bun.lockb 
-RUN bun install
+# CONFIGURACIÓN ANTIFALLOS: 
+# Forzamos el registro oficial y usamos npm para la instalación inicial 
+# porque maneja mejor los errores 404 de paquetes scoped (@astrojs)
+RUN npm config set registry https://registry.npmjs.org/
+RUN npm install
 
-# 3. Copiamos el resto del código fuente
+# Ahora que los paquetes están ahí, usamos Bun para el resto
 COPY . .
 
-# 4. Construimos el proyecto Astro
+# Construimos el proyecto Astro (usando Bun para velocidad)
 RUN bun run build
 
-# ETAPA 2: Runtime
+# ETAPA 2: Runtime (Imagen ultra ligera con Bun)
 FROM oven/bun:1.1-alpine AS runtime
 WORKDIR /app
 
-# Copiamos solo lo necesario del build
+# Copiamos solo lo necesario
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./
 
 EXPOSE 4321
 
-# Comando para iniciar el servidor de Bun generado por Astro
+# Comando de inicio
 CMD ["bun", "./dist/server/entry.mjs"]
