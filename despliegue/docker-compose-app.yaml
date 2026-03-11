@@ -38,7 +38,7 @@ services:
   # BACKEND
   # ==========================================
   ms-database-analysis:
-    build: ../ms-database-analysis
+    build: ../ms-database-analysis/deployment
     container_name: ms_database_analysis
     restart: always
     environment:
