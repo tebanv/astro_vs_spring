@@ -11,7 +11,7 @@ services:
     container_name: savia_front_check
     restart: always
     networks:
-      - automationia_proxy
+      - savia_proxy
     labels:
       - "traefik.enable=true"
       # Router HTTPS
