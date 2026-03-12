@@ -14,7 +14,7 @@ RUN bun install
 COPY . .
 
 # Build de Astro
-RUN bun run build
+RUN bun run dev
 
 # Puerto que usará Astro
 EXPOSE 4321
