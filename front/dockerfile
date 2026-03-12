@@ -1,29 +1,23 @@
-# ETAPA 1: Construcción
-FROM node:20-alpine AS build
+# Imagen oficial de Bun
+FROM oven/bun:1
+
+# Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Instalamos Bun
-RUN npm install -g bun
+# Copiamos package.json y lock primero (mejor cache de Docker)
+COPY package.json bun.lockb* ./
 
-# Copiamos package.json
-COPY package.json ./
+# Instalamos dependencias
+RUN bun install
 
-# --- MANIOBRA DE EVASIÓN ---
-# Usamos el registro de Yarn o Cloudflare que suelen ser más resilientes
-RUN npm config set registry https://registry.yarnpkg.com/
-# Intentamos instalar con flags de limpieza
-RUN npm install --no-package-lock --verbose || npm install --registry=https://registry.npmjs.org/
-
-# Si lo anterior pasa, seguimos con Bun
+# Copiamos el resto del proyecto
 COPY . .
+
+# Build de Astro
 RUN bun run build
 
-# ETAPA 2: Runtime
-FROM oven/bun:1.1-alpine AS runtime
-WORKDIR /app
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/node_modules ./node_modules
-COPY --from=build /app/package.json ./
-
+# Puerto que usará Astro
 EXPOSE 4321
-CMD ["bun", "./dist/server/entry.mjs"]
+
+# Comando para correr el servidor
+CMD ["bun", "run", "preview", "--host", "0.0.0.0", "--port", "4321"]
