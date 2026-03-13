@@ -47,6 +47,8 @@ services:
     container_name: ms_database_analysis
     restart: always
     environment:
+      - LOGGING_LEVEL_SECURITY=INFO
+      - LOGGING_LEVEL_SERVER=INFO
       - SERVER_PORT=8081
       - SPRING_PROFILES_ACTIVE=local
       - SPRING_JPA_SHOW_LOGS=true
