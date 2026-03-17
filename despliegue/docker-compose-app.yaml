@@ -19,6 +19,7 @@ services:
       - "traefik.enable=true"
       # Router HTTPS
       - "traefik.http.routers.savia-landing.rule=Host(`check.saviaservicios.com`)"
+      - "traefik.http.routers.savia-landing.priority=10" # Prioridad base
       - "traefik.http.routers.savia-landing.entrypoints=websecure"
       - "traefik.http.routers.savia-landing.tls=true"
       - "traefik.http.routers.savia-landing.tls.certresolver=myresolver"
@@ -59,6 +60,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ms-database-analysis.rule=Host(`check.saviaservicios.com`) && PathPrefix(`/ms-database-analysis`)"
+      - "traefik.http.routers.ms-database-analysis.priority=100"
       - "traefik.http.routers.ms-database-analysis.entrypoints=websecure"
       - "traefik.http.routers.ms-database-analysis.tls.certresolver=myresolver"
       - "traefik.http.services.ms-database-analysis.loadbalancer.server.port=8081"
