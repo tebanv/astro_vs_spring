@@ -71,7 +71,7 @@ services:
 
 
 networks:
-  savia_internal:
-    external: true
   savia_proxy:
+    external: true
+  savia_internal:
     external: true
