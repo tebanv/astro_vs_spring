@@ -9,15 +9,16 @@ services:
       - "--api.insecure=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
+      # NUEVOS PUERTOS DE ESCUCHA
+      - "--entrypoints.web.address=:81"          # <--- Escucha en el 81
+      - "--entrypoints.websecure.address=:8080"  # <--- Escucha en el 8080
       - "--log.level=INFO"
     environment:
       - DOCKER_API_VERSION=1.41  # <--- Agrega esta línea
     ports:
-      - "80:80"
-      - "443:443"
+      - "81:81"
+      - "8080:8080"
     volumes:
-      - "./letsencrypt:/letsencrypt"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
     networks:
       - proxy-net

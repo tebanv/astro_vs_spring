@@ -18,7 +18,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.savia-landing.rule=Host(`check.saviaservicios.com`)"
-      - "traefik.http.routers.savia-landing.entrypoints=web" # <--- Usamos web (80)
+      - "traefik.http.routers.savia-landing.entrypoints=websecure" # <--- Apunta al 8080
       - "traefik.http.services.savia-landing.loadbalancer.server.port=4321"
 
   # ==========================================
@@ -44,7 +44,6 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.ms-database-analysis.rule=Host(`check.saviaservicios.com`) && PathPrefix(`/ms-database-analysis`)"
       - "traefik.http.routers.ms-database-analysis.entrypoints=websecure"
-      - "traefik.http.routers.ms-database-analysis.tls.certresolver=myresolver"
       - "traefik.http.services.ms-database-analysis.loadbalancer.server.port=8081"
     networks:
       - savia_internal
