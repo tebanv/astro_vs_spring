@@ -14,7 +14,11 @@ const JWT_SECRET = 'your-secret-key'
 const app = new Elysia()
   .use(cors({
     // IMPORTANTE: Cambia localhost por tu dominio real para que el navegador no te bloquee
-    origin: ['https://check.saviaservicios.com', 'http://localhost:4321'],
+    origin: [
+      'https://check.saviaservicios.com', 
+      'http://localhost:3000', 
+      'http://localhost:4321'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
