@@ -19,7 +19,7 @@ services:
       - "traefik.enable=true"
       # Router para el puerto 81 (HTTP plano)
       - "traefik.http.routers.savia-landing.rule=Host(`check.saviaservicios.com`)"
-      - "traefik.http.routers.savia-landing.entrypoints=web" # <--- Esto habilita el puerto 81
+      - "traefik.http.routers.savia-landing.entrypoints=web,websecure" # <--- Esto habilita el puerto 81
       - "traefik.http.routers.savia-landing.priority=10"
       
       # IMPORTANTE: No pongas '.tls=true' aquí porque el puerto 81 es HTTP puro
