@@ -17,8 +17,14 @@ services:
       - savia_internal
     labels:
       - "traefik.enable=true"
+      # Router para el puerto 81 (HTTP plano)
       - "traefik.http.routers.savia-landing.rule=Host(`check.saviaservicios.com`)"
-      - "traefik.http.routers.savia-landing.entrypoints=websecure" # <--- Apunta al 8080
+      - "traefik.http.routers.savia-landing.entrypoints=web" # <--- Esto habilita el puerto 81
+      - "traefik.http.routers.savia-landing.priority=10"
+      
+      # IMPORTANTE: No pongas '.tls=true' aquí porque el puerto 81 es HTTP puro
+      
+      # Puerto de Elysia (confirmamos que es el 3000)
       - "traefik.http.services.savia-landing.loadbalancer.server.port=4321"
 
   # ==========================================
@@ -43,7 +49,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ms-database-analysis.rule=Host(`check.saviaservicios.com`) && PathPrefix(`/ms-database-analysis`)"
-      - "traefik.http.routers.ms-database-analysis.entrypoints=websecure"
+      - "traefik.http.routers.ms-database-analysis.entrypoints=web" # <--- Cambiado de websecure a web
+      - "traefik.http.routers.ms-database-analysis.priority=100"
       - "traefik.http.services.ms-database-analysis.loadbalancer.server.port=8081"
     networks:
       - savia_internal
