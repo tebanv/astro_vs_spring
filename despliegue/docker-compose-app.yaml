@@ -18,9 +18,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.savia-landing.rule=Host(`check.saviaservicios.com`)"
-      - "traefik.http.routers.savia-landing.entrypoints=websecure"
-      - "traefik.http.routers.savia-landing.tls.certresolver=myresolver"
-      # Puerto interno de Astro/Bun
+      - "traefik.http.routers.savia-landing.entrypoints=web" # <--- Usamos web (80)
       - "traefik.http.services.savia-landing.loadbalancer.server.port=4321"
 
   # ==========================================

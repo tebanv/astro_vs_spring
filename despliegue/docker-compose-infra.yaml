@@ -10,14 +10,6 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      # REDIRECCIÓN GLOBAL (Activada de nuevo, pero limpia)
-      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-      # CAMBIO CLAVE: Usar puerto 443 para validar (TLS-ALPN)
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=tebanvelez91@gmail.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--log.level=INFO"
     environment:
       - DOCKER_API_VERSION=1.41  # <--- Agrega esta línea
