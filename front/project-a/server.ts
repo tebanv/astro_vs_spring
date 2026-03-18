@@ -13,7 +13,8 @@ const JWT_SECRET = 'your-secret-key'
 
 const app = new Elysia()
   .use(cors({
-    origin: 'http://localhost:4321',
+    // IMPORTANTE: Cambia localhost por tu dominio real para que el navegador no te bloquee
+    origin: ['https://check.saviaservicios.com', 'http://localhost:4321'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -48,6 +49,9 @@ const app = new Elysia()
       })
     }
   )
-  .listen(3000)
+  .listen({
+    port: 3000,
+    hostname: '0.0.0.0' // <--- OBLIGATORIO para Docker
+  })
 
 console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`)

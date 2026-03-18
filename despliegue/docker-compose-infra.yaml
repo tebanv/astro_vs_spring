@@ -9,10 +9,13 @@ services:
       - "--api.insecure=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      # Entrypoints
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
-      #- "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-      #- "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      # Redirección Global HTTP -> HTTPS (Limpia y segura)
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      # Certificados
       - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
       - "--certificatesresolvers.myresolver.acme.email=tebanvelez91@gmail.com"

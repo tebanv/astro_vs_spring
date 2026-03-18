@@ -17,26 +17,11 @@ services:
       - savia_internal
     labels:
       - "traefik.enable=true"
-      # Router HTTPS
       - "traefik.http.routers.savia-landing.rule=Host(`check.saviaservicios.com`)"
-      - "traefik.http.routers.savia-landing.priority=10" # Prioridad base
       - "traefik.http.routers.savia-landing.entrypoints=websecure"
-      - "traefik.http.routers.savia-landing.tls=true"
       - "traefik.http.routers.savia-landing.tls.certresolver=myresolver"
-      # Router HTTP → HTTPS
-      - "traefik.http.routers.savia-landing-http.rule=Host(`check.saviaservicios.com`)"
-      - "traefik.http.routers.savia-landing-http.entrypoints=web"
-      - "traefik.http.routers.savia-landing-http.middlewares=savia-redirect"
-      #- "traefik.http.routers.savia-landing-http.middlewares=redirect@file"
-      # Definición del Middleware de redirección (Nativo, no @file)
-      - "traefik.http.middlewares.savia-redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.savia-redirect.redirectscheme.permanent=true"
-
-      # Puerto interno del contenedor (astro/bun)
+      # Puerto interno de Astro/Bun
       - "traefik.http.services.savia-landing.loadbalancer.server.port=4321"
-
-      # Red donde está Traefik
-      - "traefik.docker.network=savia_proxy"
 
   # ==========================================
   # BACKEND
@@ -60,11 +45,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ms-database-analysis.rule=Host(`check.saviaservicios.com`) && PathPrefix(`/ms-database-analysis`)"
-      - "traefik.http.routers.ms-database-analysis.priority=100"
       - "traefik.http.routers.ms-database-analysis.entrypoints=websecure"
       - "traefik.http.routers.ms-database-analysis.tls.certresolver=myresolver"
       - "traefik.http.services.ms-database-analysis.loadbalancer.server.port=8081"
-      - "traefik.docker.network=savia_proxy"
     networks:
       - savia_internal
       - savia_proxy # Para recibir peticiones desde internet
