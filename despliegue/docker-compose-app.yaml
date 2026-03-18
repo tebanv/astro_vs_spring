@@ -24,7 +24,7 @@ services:
       
       # IMPORTANTE: No pongas '.tls=true' aquí porque el puerto 81 es HTTP puro
       
-      # Puerto de Elysia (confirmamos que es el 3000)
+      # Puerto de astro (confirmamos que es el 3000)
       - "traefik.http.services.savia-landing.loadbalancer.server.port=4321"
 
   # ==========================================
