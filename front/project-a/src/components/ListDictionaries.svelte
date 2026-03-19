@@ -15,7 +15,7 @@
   let error = null;
   let isLoading = true;
 
-  const API_BASE_URL = 'https://valued-teal-complete.ngrok-free.app/api';
+  const API_BASE_URL = 'http://ms_database_analysis:8081/api';
   const token = localStorage.getItem('token');
 
   async function obtainDictionaries() {

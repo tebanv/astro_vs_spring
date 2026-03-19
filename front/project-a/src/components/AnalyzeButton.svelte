@@ -6,7 +6,7 @@
   import { onDestroy } from "svelte";
   import axios from 'axios';
 
-  const API_BASE_URL = 'https://valued-teal-complete.ngrok-free.app/api';
+  const API_BASE_URL = 'http://ms_database_analysis:8081/api';
 
   let isLoading = false;
   let error = null;

@@ -13,7 +13,7 @@
     console.log('Sending JSON body:', body); // Log the JSON body here
 
       try {
-      const response = await fetch('https://valued-teal-complete.ngrok-free.app/auth/login', {
+      const response = await fetch('http://ms_database_analysis:8081/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
