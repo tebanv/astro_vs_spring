@@ -17,16 +17,23 @@ services:
       - savia_internal
     labels:
       - "traefik.enable=true"
-      # Router para el puerto 81 (HTTP plano)
+      
+      # --- ROUTER PARA HTTP (Puerto 81) ---
       - "traefik.http.routers.savia-landing.rule=Host(`check.saviaservicios.com`)"
-      - "traefik.http.routers.savia-landing.entrypoints=web,websecure" # <--- Esto habilita el puerto 81
+      - "traefik.http.routers.savia-landing.entrypoints=web"
       - "traefik.http.routers.savia-landing.priority=10"
-      
-      # Activamos TLS para el puerto 8080
-      - "traefik.http.routers.savia-landing.tls=true"
-      
-      # Puerto de astro (confirmamos que es el 3000)
+      # OJO: NO poner .tls=true aquí para que el 81 sea HTTP plano
+
+      # --- ROUTER PARA HTTPS (Puerto 8080) ---
+      - "traefik.http.routers.savia-landing-secure.rule=Host(`check.saviaservicios.com`)"
+      - "traefik.http.routers.savia-landing-secure.entrypoints=websecure"
+      - "traefik.http.routers.savia-landing-secure.priority=11"
+      - "traefik.http.routers.savia-landing-secure.tls=true" # Solo para el 8080
+
+      # --- CONFIGURACIÓN DEL SERVICIO ---
+      # Si dices que el 4321 siempre te ha funcionado, lo mantenemos:
       - "traefik.http.services.savia-landing.loadbalancer.server.port=4321"
+      - "traefik.docker.network=savia_proxy"
 
   # ==========================================
   # BACKEND
