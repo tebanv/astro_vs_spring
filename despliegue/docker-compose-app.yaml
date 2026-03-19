@@ -57,7 +57,7 @@ services:
       - "traefik.http.routers.ms-database-analysis.entrypoints=web,websecure"
       
       - "traefik.http.routers.ms-database-analysis.middlewares=ms-strip"
-      - "traefik.http.middlewares.ms-strip.stripprefix.prefixes=/ms-database-analysis"
+      #- "traefik.http.middlewares.ms-strip.stripprefix.prefixes=/ms-database-analysis"
       - "traefik.http.services.ms-database-analysis.loadbalancer.server.port=8081"
     networks:
       - savia_internal
