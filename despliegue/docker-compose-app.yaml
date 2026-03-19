@@ -22,7 +22,8 @@ services:
       - "traefik.http.routers.savia-landing.entrypoints=web,websecure" # <--- Esto habilita el puerto 81
       - "traefik.http.routers.savia-landing.priority=10"
       
-      # IMPORTANTE: No pongas '.tls=true' aquí porque el puerto 81 es HTTP puro
+      # Activamos TLS para el puerto 8080
+      - "traefik.http.routers.savia-landing.tls=true"
       
       # Puerto de astro (confirmamos que es el 3000)
       - "traefik.http.services.savia-landing.loadbalancer.server.port=4321"
@@ -46,11 +47,17 @@ services:
       - SECURITY_JWT_EXPIRATION=432000000
       - FILE_PATH_REPORT_GENERATED="/opt/astro_vs_spring/testfiles/reports/"
       - FILE_PATH_DICTIONARY="/opt/astro_vs_spring/testfiles/dictionaries/"
+      - JAVA_OPTS=-Xmx1024M -Xms512M
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ms-database-analysis.rule=Host(`check.saviaservicios.com`) && PathPrefix(`/ms-database-analysis`)"
-      - "traefik.http.routers.ms-database-analysis.entrypoints=web" # <--- Cambiado de websecure a web
-      - "traefik.http.routers.ms-database-analysis.priority=100"
+      - "traefik.http.routers.ms-database-analysis.entrypoints=web"
+      
+      # --- ESTA ES LA CLAVE ---
+      - "traefik.http.routers.ms-database-analysis.middlewares=ms-strip"
+      - "traefik.http.middlewares.ms-strip.stripprefix.prefixes=/ms-database-analysis"
+      # ------------------------
+
       - "traefik.http.services.ms-database-analysis.loadbalancer.server.port=8081"
     networks:
       - savia_internal
