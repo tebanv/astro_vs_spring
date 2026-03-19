@@ -50,11 +50,19 @@ services:
       - JAVA_OPTS=-Xmx1024M -Xms512M
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.ms-database-analysis.rule=Host(`check.saviaservicios.com`, `190.159.37.187`) && PathPrefix(`/ms-database-analysis`)"
+      # Regla para capturar el tráfico
+      - "traefik.http.routers.ms-database-analysis.rule=Host(`check.saviaservicios.com`) && PathPrefix(`/ms-database-analysis`)"
+      - "traefik.http.routers.ms-database-analysis.entrypoints=web"
       
-      # HABILITAMOS AMBOS ENTRYPOINTS (Para que funcione por el 81 y el 8080)
-      - "traefik.http.routers.ms-database-analysis.entrypoints=web,websecure"
+      # ASIGNACIÓN DEL MIDDLEWARE (Asegúrate que el nombre coincida abajo)
+      - "traefik.http.routers.ms-database-analysis.middlewares=ms-strip-prefix"
+      
+      # DEFINICIÓN DEL MIDDLEWARE (Aquí estaba el fallo de Traefik)
+      - "traefik.http.middlewares.ms-strip-prefix.stripprefix.prefixes=/ms-database-analysis"
+      
+      # Configuración del servicio
       - "traefik.http.services.ms-database-analysis.loadbalancer.server.port=8081"
+      - "traefik.docker.network=savia_proxy"
     networks:
       - savia_internal
       - savia_proxy # Para recibir peticiones desde internet
