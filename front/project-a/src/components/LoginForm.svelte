@@ -13,7 +13,7 @@
     console.log('Sending JSON body:', body); // Log the JSON body here
 
       try {
-      const response = await fetch('http://ms_database_analysis:8081/ms-database-analysis/auth/login', {
+      const response = await fetch('http://check.saviaservicios.com:81/ms-database-analysis/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
