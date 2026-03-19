@@ -53,10 +53,12 @@ services:
       - "traefik.http.routers.ms-database-analysis.rule=Host(`check.saviaservicios.com`) && PathPrefix(`/ms-database-analysis`)"
       - "traefik.http.routers.ms-database-analysis.entrypoints=web"
       
-      # --- ESTA ES LA CLAVE ---
       - "traefik.http.routers.ms-database-analysis.middlewares=ms-strip"
       - "traefik.http.middlewares.ms-strip.stripprefix.prefixes=/ms-database-analysis"
-      # ------------------------
+      - "traefik.http.middlewares.ms-timeout.forwardedtimeout.timeout=60s"
+      # ESTO ES VITAL: Le dice a Traefik por cuál red hablarle al micro
+      - "traefik.docker.network=savia_proxy"
+      
 
       - "traefik.http.services.ms-database-analysis.loadbalancer.server.port=8081"
     networks:
