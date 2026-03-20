@@ -8,24 +8,17 @@
 } -->
 <script>
   import { onMount } from 'svelte';
-  import axios from 'axios';
+  import { fetchDictionaries } from '../services/apiClient.js';
   
   export let selectedDictionary = null;
   let dictionaries = [];
   let error = null;
   let isLoading = true;
 
-  const API_BASE_URL = 'https://valued-teal-complete.ngrok-free.app/api';
-  const token = localStorage.getItem('token');
-
   async function obtainDictionaries() {
     try {
-      const response = await axios.get(`${API_BASE_URL}/dictionaries`, {
-        headers: {
-          'Accept': '*/*',
-          'Authorization': `Bearer ${token}`
-        },
-      });
+      const token = localStorage.getItem('token');
+      const response = await fetchDictionaries(token);
 
       dictionaries = response.data.dictionaries;
     } catch (err) {

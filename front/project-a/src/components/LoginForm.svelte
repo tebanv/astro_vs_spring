@@ -1,6 +1,7 @@
 <script>
   import { LogOut } from 'lucide-svelte';
   import { jwtDecode } from 'jwt-decode';
+  import { loginUser } from '../services/apiClient.js';
 
   let email = '';
   let password = '';
@@ -9,18 +10,10 @@
   async function handleSubmit(event) {
     event.preventDefault();
     console.log('handleSubmit called, event default prevented.');
-    const body = JSON.stringify({ email, password });
-    console.log('Sending JSON body:', body); // Log the JSON body here
+    console.log('Sending login request');
 
-      try {
-      const response = await fetch('https://valued-teal-complete.ngrok-free.app/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: body,
-      });
-          // Convertir el cuerpo de la solicitud a un string
+    try {
+      const response = await loginUser({ email, password });
 
 
       console.log('Fetch response received:', response);

@@ -4,9 +4,11 @@
   import { transformJsonForAnalysis } from "../utils/jsonTransformations.js";
   import { Loader2, Download } from "lucide-svelte";
   import { onDestroy } from "svelte";
-  import axios from 'axios';
-
-  const API_BASE_URL = 'https://valued-teal-complete.ngrok-free.app/api';
+  import {
+    fetchReportStatus,
+    getDownloadReportUrl,
+    startDatabaseAnalysis
+  } from "../services/apiClient.js";
 
   let isLoading = false;
   let error = null;
@@ -50,13 +52,7 @@
       const token = localStorage.getItem('token');
 
       console.log("Enviando solicitud de análisis...");
-      const response = await axios.post(`${API_BASE_URL}/analyze-databases-savia`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Accept': '*/*',
-          'Authorization': `Bearer ${token}` // Añadir el token al header
-        },
-      });
+      const response = await startDatabaseAnalysis(formData, token);
 
       console.log("Respuesta recibida:", response.data);
       reportId = response.data.reportId;
@@ -79,11 +75,7 @@
       // Obtener el token del localStorage
       const token = localStorage.getItem('token');
 
-      const response = await axios.get(`${API_BASE_URL}/report-status/${reportId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}` // Añadir el token al header
-        }
-      });
+      const response = await fetchReportStatus(reportId, token);
       console.log("Estado del análisis:", response.data);
       analysisStatus = response.data.status;
 
@@ -92,7 +84,7 @@
         clearInterval(pollingInterval);
         resultFilePath = response.data.resultFilePath;
         fileName = response.data.fileName;
-        downloadUrl = `${API_BASE_URL}/download-excel/${fileName}`;
+        downloadUrl = getDownloadReportUrl(fileName);
         isLoading = false;
       } else if (response.data.status === "PENDIENTE") {
         console.log("El análisis aún está en proceso...");
