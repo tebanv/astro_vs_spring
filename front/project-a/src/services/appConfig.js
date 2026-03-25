@@ -1,98 +1,70 @@
-const DEFAULT_CONFIG = {
-  services: {
-    api: "https://valued-teal-complete.ngrok-free.app/api",
-    auth: "https://valued-teal-complete.ngrok-free.app/auth"
-  },
-  endpoints: {
-    login: {
-      service: "auth",
-      path: "/login"
-    },
-    analyzeDatabase: {
-      service: "api",
-      path: "/analyze-databases-savia"
-    },
-    reportStatus: {
-      service: "api",
-      path: "/report-status/{reportId}"
-    },
-    downloadExcel: {
-      service: "api",
-      path: "/download-excel/{fileName}"
-    },
-    dictionaries: {
-      service: "api",
-      path: "/dictionaries"
-    }
-  }
-};
-
-function normalizeBaseUrl(value, fallback) {
+function normalizeBaseUrl(value) {
   if (typeof value !== "string") {
-    return fallback;
+    throw new Error("Invalid service base URL in runtime config");
   }
 
   const trimmedValue = value.trim();
 
   if (!trimmedValue) {
-    return fallback;
+    throw new Error("Empty service base URL in runtime config");
   }
 
   return trimmedValue.endsWith("/") ? trimmedValue.slice(0, -1) : trimmedValue;
 }
 
-function normalizePath(value, fallback) {
+function normalizePath(value) {
   if (typeof value !== "string") {
-    return fallback;
+    throw new Error("Invalid endpoint path in runtime config");
   }
 
   const trimmedValue = value.trim();
 
   if (!trimmedValue) {
-    return fallback;
+    throw new Error("Empty endpoint path in runtime config");
   }
 
   return trimmedValue.startsWith("/") ? trimmedValue : `/${trimmedValue}`;
 }
 
 function readRuntimeConfig() {
-  if (typeof window === "undefined") {
-    return {};
+  if (typeof window === "undefined" || !window.__APP_CONFIG__) {
+    throw new Error("Runtime config not found. Expected window.__APP_CONFIG__ from /app-config.js");
   }
 
-  return window.__APP_CONFIG__ ?? {};
+  return window.__APP_CONFIG__;
 }
 
-function readEnvConfig() {
-  return {
-    services: {
-      api: import.meta.env.PUBLIC_API_BASE_URL,
-      auth: import.meta.env.PUBLIC_AUTH_BASE_URL
-    }
-  };
-}
+function validateServices(services) {
+  if (!services || typeof services !== "object") {
+    throw new Error("Runtime config must define a services object");
+  }
 
-function mergeServices(runtimeServices = {}, envServices = {}, defaultServices = {}) {
-  return Object.keys(defaultServices).reduce((services, key) => {
-    services[key] = normalizeBaseUrl(
-      runtimeServices[key] ?? envServices[key],
-      defaultServices[key]
-    );
-    return services;
+  return Object.entries(services).reduce((resolvedServices, [key, value]) => {
+    resolvedServices[key] = normalizeBaseUrl(value);
+    return resolvedServices;
   }, {});
 }
 
-function mergeEndpoints(runtimeEndpoints = {}, defaultEndpoints = {}) {
-  return Object.keys(defaultEndpoints).reduce((endpoints, key) => {
-    const defaultEndpoint = defaultEndpoints[key];
-    const runtimeEndpoint = runtimeEndpoints[key] ?? {};
+function validateEndpoints(endpoints) {
+  if (!endpoints || typeof endpoints !== "object") {
+    throw new Error("Runtime config must define an endpoints object");
+  }
 
-    endpoints[key] = {
-      service: runtimeEndpoint.service ?? defaultEndpoint.service,
-      path: normalizePath(runtimeEndpoint.path, defaultEndpoint.path)
+  return Object.entries(endpoints).reduce((resolvedEndpoints, [key, value]) => {
+    if (!value || typeof value !== "object") {
+      throw new Error(`Invalid endpoint definition: ${key}`);
+    }
+
+    if (typeof value.service !== "string" || !value.service.trim()) {
+      throw new Error(`Endpoint ${key} must declare a service`);
+    }
+
+    resolvedEndpoints[key] = {
+      service: value.service.trim(),
+      path: normalizePath(value.path)
     };
 
-    return endpoints;
+    return resolvedEndpoints;
   }, {});
 }
 
@@ -112,18 +84,10 @@ function buildUrl(baseUrl, path) {
 
 export function getAppConfig() {
   const runtimeConfig = readRuntimeConfig();
-  const envConfig = readEnvConfig();
 
   return {
-    services: mergeServices(
-      runtimeConfig.services,
-      envConfig.services,
-      DEFAULT_CONFIG.services
-    ),
-    endpoints: mergeEndpoints(
-      runtimeConfig.endpoints,
-      DEFAULT_CONFIG.endpoints
-    )
+    services: validateServices(runtimeConfig.services),
+    endpoints: validateEndpoints(runtimeConfig.endpoints)
   };
 }
 

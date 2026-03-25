@@ -1,7 +1,7 @@
 window.__APP_CONFIG__ = {
   services: {
-    api: "https://valued-teal-complete.ngrok-free.app/api",
-    auth: "https://valued-teal-complete.ngrok-free.app/auth"
+    api: "https://httpbin.org/anything/api",
+    auth: "https://httpbin.org/anything/auth"
   },
   endpoints: {
     login: {
