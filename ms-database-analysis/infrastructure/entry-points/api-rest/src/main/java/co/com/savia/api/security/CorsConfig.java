@@ -1,6 +1,7 @@
 package co.com.savia.api.security;
 
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,6 +17,8 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
     /*
    @Bean
     public org.springframework.web.filter.CorsFilter<CorsFilter> corsFilter(@Value("${cors.allowed-origins}") String origins) {
@@ -49,13 +52,21 @@ public class CorsConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/login").permitAll() // Permitir login sin token
                         .requestMatchers("/h2-console/**").permitAll() // Permitir acceso a H2 Console
+                        .requestMatchers("/favicon.ico").permitAll()
                         //.requestMatchers("/api/**").hasRole("ADMIN") // Endpoints protegidos para admin
                         .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated() // Proteger otras rutas
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class) // Añade el filtro antes del de autenticación
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // Añade el filtro antes del de autenticación
                 .headers(headers -> headers
-                        .frameOptions(frameOptions -> frameOptions.sameOrigin()) // Permitir iframes desde la misma fuente
+                        // 1. Deshabilitar explicitamente el CSP para la consola de H2 o relajarlo
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src 'self';")
+                        )
+                        // 2. Permitir frames (indispensable para H2)
+                        .frameOptions(frame -> frame.sameOrigin())
+                        // 3. Deshabilitar cache para evitar problemas de recarga en H2
+                        .cacheControl(cache -> cache.disable())
                 );
         return http.build();
     }

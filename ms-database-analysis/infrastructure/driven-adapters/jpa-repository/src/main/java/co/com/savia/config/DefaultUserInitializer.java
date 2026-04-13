@@ -11,27 +11,34 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DefaultUserInitializer {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @PostConstruct
-    public void initializeDefaultAdmin() {
-        String defaultEmail = "admin@savia.com";
-        String defaultPassword = "admin123";
-        String defaultName = "Administrador";
-        String defaultRole = "ADMIN";
+    public void initializeUsers() {
+        // 1. Crear Administrador
+        createIfNotFound("admin@saviaservicios.com", "admin123", "Administrador Principal", "ADMIN");
 
-        userRepository.findByEmail(defaultEmail).ifPresentOrElse(user -> {
-            // Usuario ya existe, no hacer nada
-        }, () -> {
-            // Crear usuario por defecto
-            BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            UserEntity admin = UserEntity.builder()
-                    .email(defaultEmail)
-                    .password(passwordEncoder.encode(defaultPassword))
-                    .name(defaultName)
-                    .role(defaultRole)
-                    .build();
-            userRepository.save(admin);
-        });
+        // 2. Crear Analistas Genéricos
+        createIfNotFound("analista1@saviaservicios.com", "analista123", "Analista Junior", "ANALISTA");
+        createIfNotFound("analista2@saviaservicios.com", "analista123", "Analista Senior", "ANALISTA");
+        createIfNotFound("analista3@saviaservicios.com", "analista123", "Analista Soporte", "ANALISTA");
+    }
+
+    private void createIfNotFound(String email, String password, String name, String role) {
+        userRepository.findByEmail(email).ifPresentOrElse(
+                user -> {
+                    // Ya existe, podrías loguear algo si quisieras
+                },
+                () -> {
+                    UserEntity newUser = UserEntity.builder()
+                            .email(email)
+                            .password(passwordEncoder.encode(password))
+                            .name(name)
+                            .role(role)
+                            .build();
+                    userRepository.save(newUser);
+                }
+        );
     }
 
 }

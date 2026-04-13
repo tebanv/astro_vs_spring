@@ -1,5 +1,6 @@
 package co.com.savia.api;
 
+import co.com.savia.model.report.ReportModel;
 import co.com.savia.model.report.request.ValidationRules;
 import co.com.savia.model.report.response.DownloadReport;
 import co.com.savia.model.report.response.Error;
@@ -36,96 +37,76 @@ public class ApiRest {
     public Mono<ResponseEntity<?>> analyzeDatabases(@RequestParam("db-file") MultipartFile dbFile,
                                                 @RequestParam("br-file") MultipartFile brFile) {
 
+        long startTime = System.currentTimeMillis();
         Mono<ResponseEntity<?>> Bad_Request = validateBadRequest(dbFile, brFile);
         if (Bad_Request != null) return Bad_Request;
 
-        log.info("Se inicia el analisis de la base de datos: {} con el archivo de config: {}",
-                dbFile.getOriginalFilename(), brFile.getOriginalFilename());
+        String fileName = dbFile.getOriginalFilename();
+        log.info("Iniciando flujo de análisis. DB: {} (Size: {} bytes) | Rules: {}",
+                fileName, dbFile.getSize(), brFile.getOriginalFilename());
         try {
             List<Map<String, String>> records = useCase.processExcelFile(dbFile.getInputStream());
-            log.info("Archivo de Excel leido...");
+            log.info("Excel procesado. Registros extraídos: {}", records.size());
 
             ValidationRules rules = processJsonFile(brFile);
             log.info("Archivo de reglas de negocio leido: {}", rules);
 
 
-            String fileName = dbFile.getOriginalFilename() != null ?
-                    dbFile.getOriginalFilename().replaceAll(" ", "")
-                            .replaceAll("\\.(xlsx|csv)$", "") : dbFile.getOriginalFilename();
+            String sanitizedFileName = fileName != null ?
+                    fileName.replaceAll(" ", "").replaceAll("\\.(xlsx|csv)$", "") : "unknown";
 
-            return useCase.analyzeDatabaseWithRules(records, rules, fileName)
+            return useCase.analyzeDatabaseWithRules(records, rules, sanitizedFileName)
                     .map(reportResponse -> {
+                        long duration = System.currentTimeMillis() - startTime;
                         if (reportResponse.getCode() == HttpStatus.OK.value()) {
-                            return ResponseEntity
-                                    .status(reportResponse.getCode())
-                                    .body(reportResponse.getData());
+                            log.info("Análisis exitoso para {}. Tiempo total: {}ms", sanitizedFileName, duration);
+                            return ResponseEntity.status(reportResponse.getCode()).body(reportResponse.getData());
                         } else {
-                            return ResponseEntity
-                                    .status(reportResponse.getCode())
-                                    .body(reportResponse.getError());
+                            log.warn("El análisis para {} terminó con errores de validación. Código: {}", sanitizedFileName, reportResponse.getCode());
+                            return ResponseEntity.status(reportResponse.getCode()).body(reportResponse.getError());
                         }
-
                     });
 
 
         } catch (Exception e) {
-            log.error("error creando reporte: {}", e.getMessage());
+            log.error("Error crítico durante el análisis del archivo {}: {}", fileName, e.getMessage(), e); // Agrega 'e' al final para el stacktrace
             return Mono.just(ResponseEntity.internalServerError()
                     .body(ReportResponse.builder()
                             .error(Error.builder()
-                                    .detail("Error creando reporte: ".concat(e.getMessage()))
-                                    .message("Not Found")
+                                    .detail("Error interno: " + e.getMessage())
+                                    .message("Internal Server Error")
                                     .build())
                             .build()));
         }
     }
 
-    //@PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/report-status/{reportId}")
-    public Mono<ResponseEntity<?>> getReportStatus(@PathVariable("reportId") String reportId) {
-        log.info("Se consulta reporte por id: {}", reportId);
-        try {
-            return useCase.getReportStatus(reportId)
-                    .map(response -> {
-                        if (response != null) {
-                            return ResponseEntity.ok(response);
-                        } else {
-                            return ResponseEntity.status(404)
-                                    .body(ReportResponse.builder()
-                                            .error(Error.builder()
-                                                    .detail("Error buscando reporte con id: ".concat(reportId))
-                                                    .message("Not Found")
-                                                    .build())
-                                            .build());
-                        }
-                    });
-        } catch (Exception e) {
-            return Mono.just(ResponseEntity.status(404)
-                    .body(ReportResponse.builder()
-                            .code(404)
-                            .error(Error.builder()
-                                    .detail("No se encontro reporte con id: ".concat(reportId))
-                                    .message("Not Found")
-                                    .build())
-                            .build()));
-        }
-
+    public Mono<ResponseEntity<ReportModel>> getReportStatus(@PathVariable("reportId") String reportId) {
+        log.info("Consultando estado del reporte ID: {}", reportId);
+        return useCase.getReportStatus(reportId)
+                .map(response -> {
+                    log.info("Estado obtenido para reporte {}: {}", reportId, response != null ? "ENCONTRADO" : "NO ENCONTRADO");
+                    return ResponseEntity.ok(response);
+                })
+                .onErrorResume(e -> {
+                    log.error("Error al consultar el reporte {}: {}", reportId, e.getMessage());
+                    return Mono.just(ResponseEntity.status(404).build());
+                });
     }
 
-    //@PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/download-excel/{filename}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("filename") String filename) {
+        log.info("Solicitud de descarga de archivo: {}", filename);
         try {
-            log.info("Se recibe peticion para descaragr archivo: {}", filename);
             DownloadReport downloadReport = useCase.getResource(filename);
+            log.info("Archivo {} enviado exitosamente al cliente.", filename);
             return ResponseEntity.status(downloadReport.getCode())
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                     .body(downloadReport.getData());
-
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ByteArrayResource(("Error serving file: " + e.getMessage()).getBytes()));
+            log.error("Error al descargar el archivo {}: {}", filename, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
