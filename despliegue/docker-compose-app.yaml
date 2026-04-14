@@ -52,8 +52,8 @@ services:
       - SPRING_JPA_SHOW_LOGS=true
       - SECURITY_JWT_SECRET=5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437
       - SECURITY_JWT_EXPIRATION=432000000
-      - FILE_PATH_REPORT_GENERATED="/opt/savia_check/astro_vs_spring/testfiles/reports/"
-      - FILE_PATH_DICTIONARY="/opt/savia_check/astro_vs_spring/testfiles/dictionaries/"
+      - FILE_PATH_REPORT_GENERATED="/opt/savia_check/testfiles/reports/"
+      - FILE_PATH_DICTIONARY="/opt/savia_check/astro_vs_spring/dictionaries/"
       - JAVA_OPTS=-Xmx1024M -Xms512M
     labels:
       - "traefik.enable=true"
@@ -70,6 +70,10 @@ services:
       # Configuración del servicio
       - "traefik.http.services.ms-database-analysis.loadbalancer.server.port=8081"
       - "traefik.docker.network=savia_proxy"
+    volumes:
+      # Formato: RUTA_HOST:RUTA_CONTENEDOR
+      - /opt/savia_check/testfiles/reports/:/app/reports/
+      - /opt/savia_check/astro_vs_spring/dictionaries/:/app/dictionaries/
     networks:
       - savia_internal
       - savia_proxy # Para recibir peticiones desde internet
