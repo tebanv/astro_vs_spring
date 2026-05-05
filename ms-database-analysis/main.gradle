@@ -27,7 +27,7 @@ subprojects {
             enabled = false
         }
 
-    sourceCompatibility = JavaVersion.VERSION_23
+    sourceCompatibility = JavaVersion.VERSION_17
 
     //build.dependsOn 'pitest'
 
